@@ -1,0 +1,166 @@
+// Gemini API integration for AI career analysis
+// Uses gemini-2.5-flash model
+
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+
+export async function callGeminiAPI(prompt) {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
+  if (!apiKey || apiKey === 'your_key_here') {
+    throw new Error('VITE_GEMINI_API_KEY chưa được cấu hình. Vui lòng thêm API key vào file .env');
+  }
+
+  try {
+    const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 2048,
+          topP: 0.9,
+          topK: 40
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error?.message || `API Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.candidates || !data.candidates[0]?.content?.parts?.[0]?.text) {
+      throw new Error('Không nhận được phản hồi từ Gemini API');
+    }
+
+    return data.candidates[0].content.parts[0].text;
+  } catch (error) {
+    if (error.message.includes('API key') || error.message.includes('configured')) {
+      throw error;
+    }
+    throw new Error(`Lỗi khi gọi Gemini API: ${error.message}`);
+  }
+}
+
+export function buildPrompt(hollandResult, mbtiResult, discResult) {
+  let prompt = `[VAI TRÒ]
+Bạn là chuyên gia tư vấn hướng nghiệp với 20 năm kinh nghiệm,
+am hiểu thị trường lao động Việt Nam và xu hướng AI toàn cầu.
+Hãy phân tích kết quả trắc nghiệm và đưa ra tư vấn cụ thể,
+thực tế, phù hợp với bối cảnh Việt Nam năm 2025-2035.
+Trả lời bằng tiếng Việt, thân thiện nhưng chuyên nghiệp.
+
+[DỮ LIỆU NGƯỜI DÙNG]
+`;
+
+  if (hollandResult) {
+    prompt += `
+--- KẾT QUẢ HOLLAND RIASEC ---
+Mã Holland: ${hollandResult.code}
+Điểm các nhóm:
+  - R (Thực tế): ${hollandResult.percentages.R}%
+  - I (Nghiên cứu): ${hollandResult.percentages.I}%
+  - A (Nghệ thuật): ${hollandResult.percentages.A}%
+  - S (Xã hội): ${hollandResult.percentages.S}%
+  - E (Doanh nhân): ${hollandResult.percentages.E}%
+  - C (Quy củ): ${hollandResult.percentages.C}%
+Top nhóm nổi bật: ${hollandResult.topGroups.map(g => g.name).join(', ')}
+`;
+  }
+
+  if (mbtiResult) {
+    prompt += `
+--- KẾT QUẢ MBTI ---
+Kiểu tính cách: ${mbtiResult.type}
+Tên: ${mbtiResult.profile.name}
+Phần trăm các chiều:
+  - E/I: ${mbtiResult.percentages.E}/${mbtiResult.percentages.I}%
+  - S/N: ${mbtiResult.percentages.S}/${mbtiResult.percentages.N}%
+  - T/F: ${mbtiResult.percentages.T}/${mbtiResult.percentages.F}%
+  - J/P: ${mbtiResult.percentages.J}/${mbtiResult.percentages.P}%
+Điểm mạnh: ${mbtiResult.profile.strengths.join(', ')}
+`;
+  }
+
+  if (discResult) {
+    prompt += `
+--- KẾT QUẢ DISC ---
+Phong cách: ${discResult.style}
+Điểm các nhóm:
+  - D (Thống trị): ${discResult.percentages.D}%
+  - I (Ảnh hưởng): ${discResult.percentages.I}%
+  - S (Ổn định): ${discResult.percentages.S}%
+  - C (Cẩn thận): ${discResult.percentages.C}%
+`;
+  }
+
+  prompt += `
+[YÊU CẦU PHÂN TÍCH]
+Hãy phân tích theo đúng cấu trúc sau và trả lời đầy đủ tất cả các phần:
+
+1. ĐIỂM MẠNH NỔI BẬT
+   Phân tích 3-5 điểm mạnh cá nhân dựa trên kết quả test. Mỗi điểm mạnh nên được giải thích ngắn gọn tại sao nó phù hợp với kết quả của người dùng.
+
+2. TOP 3 NGHỀ PHÙ HỢP NHẤT
+   Với mỗi nghề, cung cấp:
+   - Tên nghề
+   - Lý do tại sao phù hợp với người dùng
+   - Mức lương trung bình tại Việt Nam
+   - Triển vọng AI (Phát triển mạnh / Ổn định / Rủi ro cao)
+
+3. LỘ TRÌNH CỤ THỂ
+   Cho nghề phù hợp nhất, hãy đề xuất lộ trình học tập:
+   - Cần học gì (chuyên ngành, khóa học)
+   - Học ở đâu (gợi ý trường/trung tâm tại VN)
+   - Mất bao lâu để có thể bắt đầu
+
+4. KỸ NĂNG CẦN HỌC NGAY
+   Liệt kê 5 kỹ năng ưu tiên trong bối cảnh AI đang thay đổi thị trường lao động. Mỗi kỹ năng nên có giải thích ngắn tại sao nó quan trọng.
+
+5. CẢNH BÁO RỦI RO AI
+   Phân tích phần nào trong các nghề gợi ý dễ bị AI thay thế và đề xuất cách phòng tránh:
+   - Những công việc cụ thể nào trong nghề có nguy cơ cao
+   - Cần làm gì để trở thành người khó thay thế hơn
+
+6. CÂU HỎI TỰ VẤN
+   Đưa ra 3 câu hỏi giúp người dùng tự khám phá sâu hơn về con đường sự nghiệp của mình. Các câu hỏi nên thực tế và có thể tự trả lời được.
+
+Lưu ý: Hãy trả lời BẮT BUỘC theo đúng cấu trúc 6 phần trên, không bỏ qua phần nào. Sử dụng markdown để định dạng (tiêu đề in đậm, danh sách gạch đầu dòng).`;
+
+  return prompt;
+}
+
+export function buildChatPrompt(contextPrompt, userMessage, conversationHistory = []) {
+  let prompt = `${contextPrompt}
+
+[CUỘC HỘI thoại]
+Bạn đã phân tích kết quả trắc nghiệm cho người dùng. Bây giờ họ đang hỏi thêm câu hỏi.
+
+Lịch sử cuộc trò chuyện:
+${conversationHistory.map(h => `${h.role === 'user' ? 'Người dùng' : 'Bạn'}: ${h.content}`).join('\n')}
+
+Người dùng hỏi: ${userMessage}
+
+Yêu cầu:
+- Trả lời ngắn gọn, tập trung vào câu hỏi cụ thể
+- Dựa trên kết quả trắc nghiệm đã phân tích trước đó
+- Nếu câu hỏi không liên quan đến hướng nghiệp, hãy khéo léo chuyển về chủ đề
+- Trả lời bằng tiếng Việt, thân thiện`;
+
+  return prompt;
+}
+
+export default {
+  callGeminiAPI,
+  buildPrompt,
+  buildChatPrompt
+};

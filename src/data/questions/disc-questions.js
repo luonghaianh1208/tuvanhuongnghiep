@@ -1,0 +1,40 @@
+// DISC Questions - 28 câu (7 câu mỗi nhóm D, I, S, C)
+// Thang điểm: 1 = Hoàn toàn không đồng ý -> 5 = Hoàn toàn đồng ý
+
+export const discQuestions = [
+  // Nhóm D - Dominant (Thống trị) - Quyết đoán, hướng kết quả
+  { id: 'D1', text: 'Tôi thích làm việc với các con số và dữ liệu để đạt kết quả cụ thể', category: 'D', type: 'disc' },
+  { id: 'D2', text: 'Tôi không ngại đưa ra quyết định nhanh khi cần thiết', category: 'D', type: 'disc' },
+  { id: 'D3', text: 'Tôi thích thử thách và giành chiến thắng trong cạnh tranh', category: 'D', type: 'disc' },
+  { id: 'D4', text: 'Tôi tập trung vào mục tiêu và làm việc hiệu quả để đạt được nó', category: 'D', type: 'disc' },
+  { id: 'D5', text: 'Tôi thoải mái khi điều hành và kiểm soát tình huống', category: 'D', type: 'disc' },
+  { id: 'D6', text: 'Tôi thích làm nhiều việc cùng lúc và đạt kết quả nhanh', category: 'D', type: 'disc' },
+  { id: 'D7', text: 'Tôi sẵn sàng chấp nhận rủi ro để đạt được thành công lớn', category: 'D', type: 'disc' },
+
+  // Nhóm I - Influential (Ảnh hưởng) - Giao tiếp, nhiệt tình
+  { id: 'I1', text: 'Tôi dễ dàng kết nối với người khác và tạo ấn tượng tốt', category: 'I', type: 'disc' },
+  { id: 'I2', text: 'Tôi thích thuyết trình và truyền đạt ý tưởng cho mọi người', category: 'I', type: 'disc' },
+  { id: 'I3', text: 'Tôi lạc quan và truyền năng lượng tích cực cho người xung quanh', category: 'I', type: 'disc' },
+  { id: 'I4', text: 'Tôi thích tham gia các hoạt động xã hội và gặp gỡ nhiều người', category: 'I', type: 'disc' },
+  { id: 'I5', text: 'Tôi có khả năng thuyết phục người khác đồng ý với mình', category: 'I', type: 'disc' },
+  { id: 'I6', text: 'Tôi thích làm việc trong môi trường năng động và sáng tạo', category: 'I', type: 'disc' },
+  { id: 'I7', text: 'Tôi giỏi trong việc xây dựng mối quan hệ và network', category: 'I', type: 'disc' },
+
+  // Nhóm S - Steady (Ổn định) - Kiên nhẫn, hỗ trợ
+  { id: 'S1', text: 'Tôi kiên nhẫn lắng nghe người khác chia sẻ vấn đề của họ', category: 'S', type: 'disc' },
+  { id: 'S2', text: 'Tôi thích làm việc trong môi trường ổn định, ít thay đổi đột ngột', category: 'S', type: 'disc' },
+  { id: 'S3', text: 'Tôi đáng tin cậy và luôn hoàn thành công việc đúng hạn', category: 'S', type: 'disc' },
+  { id: 'S4', text: 'Tôi hỗ trợ và giúp đỡ đồng nghiệp khi họ cần', category: 'S', type: 'disc' },
+  { id: 'S5', text: 'Tôi thích làm việc theo nhóm hơn là cạnh tranh', category: 'S', type: 'disc' },
+  { id: 'S6', text: 'Tôi cẩn thận và không vội vàng trong việc đưa ra quyết định', category: 'S', type: 'disc' },
+  { id: 'S7', text: 'Tôi trung thành với tổ chức và người tôi làm việc cùng', category: 'S', type: 'disc' },
+
+  // Nhóm C - Conscientious (Cẩn thận) - Chính xác, phân tích
+  { id: 'C1', text: 'Tôi chú ý đến từng chi tiết và không bỏ sót lỗi nhỏ', category: 'C', type: 'disc' },
+  { id: 'C2', text: 'Tôi thích làm việc với dữ liệu và phân tích kỹ lưỡng trước khi kết luận', category: 'C', type: 'disc' },
+  { id: 'C3', text: 'Tôi tuân thủ quy tắc và tiêu chuẩn chất lượng nghiêm ngặt', category: 'C', type: 'disc' },
+  { id: 'C4', text: 'Tôi cần thời gian để nghiên cứu và hoàn thành công việc chính xác', category: 'C', type: 'disc' },
+  { id: 'C5', text: 'Tôi thích sự chính xác và hoàn hảo trong công việc', category: 'C', type: 'disc' },
+  { id: 'C6', text: 'Tôi thận trọng với thông tin và kiểm tra kỹ trước khi sử dụng', category: 'C', type: 'disc' },
+  { id: 'C7', text: 'Tôi đặt tiêu chuẩn cao cho chính mình và người khác', category: 'C', type: 'disc' }
+];
