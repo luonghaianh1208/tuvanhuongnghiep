@@ -245,7 +245,7 @@ function getDISCWorkplace(style) {
     CI: 'Môi trường phân tích nhưng cởi mở với người khác.',
     CS: 'Môi trường cẩn thận và hỗ trợ.'
   };
-  return workplaces[style] || workplaces[dominant];
+  return workplaces[style] || workplaces[style[0]] || 'Môi trường phù hợp với phong cách làm việc của bạn.';
 }
 
 function getDISCLeadership(style) {

@@ -114,8 +114,8 @@ function MBTIResult({ result }) {
           Nghề nghiệp phù hợp ({profile.suitableCareers.length})
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {topCareers.filter(c => profile.suitableCareers.includes(c.name)).slice(0, 8).map((career) => (
-            <div key={career.id} className="border border-gray-100 rounded-lg p-3 hover:shadow-md transition-shadow">
+          {profile.suitableCareers.slice(0, 8).map((career) => (
+            <div key={career.id || career.name} className="border border-gray-100 rounded-lg p-3 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-1">
                 <span className="font-be-vietnam font-medium text-navy text-sm">{career.name}</span>
                 <span className={`font-be-vietnam text-xs px-2 py-0.5 rounded-full ${getAIOpportunityBadge(career.aiOutlook)}`}>
@@ -131,8 +131,8 @@ function MBTIResult({ result }) {
           Nghề nên cân nhắc ({profile.considerCareers.length})
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {topCareers.filter(c => profile.considerCareers.includes(c.name)).slice(0, 4).map((career) => (
-            <div key={career.id} className="border border-gray-100 rounded-lg p-3 hover:shadow-md transition-shadow">
+          {profile.considerCareers.slice(0, 4).map((career) => (
+            <div key={career.id || career.name} className="border border-gray-100 rounded-lg p-3 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-1">
                 <span className="font-be-vietnam font-medium text-navy text-sm">{career.name}</span>
                 <span className={`font-be-vietnam text-xs px-2 py-0.5 rounded-full ${getAIOpportunityBadge(career.aiOutlook)}`}>
