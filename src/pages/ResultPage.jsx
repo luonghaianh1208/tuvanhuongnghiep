@@ -22,28 +22,35 @@ function ResultPage() {
   useEffect(() => {
     // Get results from location state
     if (location.state) {
-      const { holland, mbti, disc } = location.state;
+      const { holland, mbti, disc, fromHistory } = location.state;
       setHollandResult(holland);
       setMbtiResult(mbti);
       setDiscResult(disc);
+
+      // Set active tab to the first available result
+      if (holland) setActiveTab('holland');
+      else if (mbti) setActiveTab('mbti');
+      else if (disc) setActiveTab('disc');
 
       if (holland || mbti || disc) {
         const combined = getCombinedResults({ holland, mbti, disc });
         setCombinedResults(combined);
 
-        // Save to history
-        const resultToSave = {
-          testsCompleted: [
-            holland ? 'holland' : null,
-            mbti ? 'mbti' : null,
-            disc ? 'disc' : null
-          ].filter(Boolean),
-          holland,
-          mbti,
-          disc,
-          aiAnalysis: null
-        };
-        saveResult(resultToSave);
+        // Only save to history if this is a NEW result (not viewing from history)
+        if (!fromHistory) {
+          const resultToSave = {
+            testsCompleted: [
+              holland ? 'holland' : null,
+              mbti ? 'mbti' : null,
+              disc ? 'disc' : null
+            ].filter(Boolean),
+            holland,
+            mbti,
+            disc,
+            aiAnalysis: null
+          };
+          saveResult(resultToSave);
+        }
       }
     }
   }, [location.state]);

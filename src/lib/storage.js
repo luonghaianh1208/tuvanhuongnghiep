@@ -4,6 +4,7 @@
 
 const STORAGE_KEY = 'career_test_history';
 const CURRENT_TEST_KEY = 'career_test_current';
+const MAX_HISTORY_ITEMS = 20; // Keep max 20 results to avoid filling localStorage
 
 export function generateId() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -22,7 +23,38 @@ export function saveResult(result) {
       date: new Date().toISOString()
     };
     history.unshift(newResult); // Add to beginning
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+
+    // Auto-prune: keep only MAX_HISTORY_ITEMS most recent
+    const trimmed = history.slice(0, MAX_HISTORY_ITEMS);
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+    } catch (quotaError) {
+      // localStorage is full - progressively remove oldest items until it fits
+      console.warn('localStorage near full, removing old history entries...');
+      let items = trimmed;
+      while (items.length > 1) {
+        items = items.slice(0, -1); // Remove oldest item
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+          console.log(`Pruned history to ${items.length} items to free space`);
+          break;
+        } catch (e) {
+          // Still too big, keep removing
+          continue;
+        }
+      }
+      // If even 1 item doesn't fit, clear everything
+      if (items.length <= 1) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify([newResult]));
+        } catch (e) {
+          localStorage.removeItem(STORAGE_KEY);
+          console.error('Unable to save to localStorage at all');
+        }
+      }
+    }
+
     return newResult.id;
   } catch (error) {
     console.error('Error saving result:', error);
