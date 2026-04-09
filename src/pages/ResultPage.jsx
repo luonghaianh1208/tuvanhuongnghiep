@@ -8,7 +8,9 @@ import AIAnalysis from '../components/results/AIAnalysis';
 import ChatWithAI from '../components/results/ChatWithAI';
 import { getCombinedResults } from '../lib/scoring';
 import { buildPrompt } from '../lib/gemini-api';
-import { saveResult } from '../lib/storage';
+import { saveResult, getUserInfo } from '../lib/storage';
+
+const USER_INFO_KEY = 'career_test_user_info';
 
 function ResultPage() {
   const navigate = useNavigate();
@@ -64,10 +66,10 @@ function ResultPage() {
   }, [location.state]);
 
   // Callback when AI analysis completes - save/update it in history
-  const handleAIAnalysisComplete = (analysisText) => {
+  const handleAIAnalysisComplete = async (analysisText) => {
     setSavedAIAnalysis(analysisText);
 
-    // Update the saved result with AI analysis
+    // Update the saved result with AI analysis in localStorage only
     if (currentResultId) {
       const { updateResultAIAnalysis } = require('../lib/storage');
       updateResultAIAnalysis(currentResultId, analysisText);
