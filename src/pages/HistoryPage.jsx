@@ -35,6 +35,7 @@ function HistoryPage() {
         holland: result.holland || null,
         mbti: result.mbti || null,
         disc: result.disc || null,
+        aiAnalysis: result.aiAnalysis || null,
         fromHistory: true // Flag to prevent re-saving
       }
     });

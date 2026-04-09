@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { callGeminiAPI, buildPrompt } from '../../lib/gemini-api.js';
 
-function AIAnalysis({ hollandResult, mbtiResult, discResult, onAnalysisComplete }) {
+function AIAnalysis({ hollandResult, mbtiResult, discResult, onAnalysisComplete, preSavedAnalysis }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [analysis, setAnalysis] = useState(null);
+  const [analysis, setAnalysis] = useState(preSavedAnalysis || null);
+
+  // If we have pre-saved analysis, show it immediately without the button
+  const hasPreSaved = !!preSavedAnalysis;
 
   const handleAnalyze = async () => {
     setLoading(true);
@@ -41,6 +44,30 @@ function AIAnalysis({ hollandResult, mbtiResult, discResult, onAnalysisComplete 
 
     return `<p class="font-be-vietnam text-gray-700 mb-3">${html}</p>`;
   };
+
+  // Show pre-saved analysis directly, or show the button to generate new one
+  if (hasPreSaved) {
+    // Show the saved analysis content - same as the completed state
+    return (
+      <div className="bg-white border border-gray-200 rounded-xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-be-vietnam font-bold text-xl text-navy">
+            Phân tích chuyên sâu từ AI
+          </h3>
+          <span className="inline-flex items-center px-3 py-1 bg-green-100 text-green-700 rounded-full font-be-vietnam text-xs font-medium">
+            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            Đã lưu
+          </span>
+        </div>
+        <div
+          className="prose prose-sm max-w-none"
+          dangerouslySetInnerHTML={{ __html: renderMarkdown(analysis) }}
+        />
+      </div>
+    );
+  }
 
   if (!analysis && !loading) {
     return (

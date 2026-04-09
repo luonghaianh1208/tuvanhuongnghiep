@@ -18,14 +18,21 @@ function ResultPage() {
   const [mbtiResult, setMbtiResult] = useState(null);
   const [discResult, setDiscResult] = useState(null);
   const [combinedResults, setCombinedResults] = useState(null);
+  const [savedAIAnalysis, setSavedAIAnalysis] = useState(null);
+  const [currentResultId, setCurrentResultId] = useState(null);
 
   useEffect(() => {
     // Get results from location state
     if (location.state) {
-      const { holland, mbti, disc, fromHistory } = location.state;
+      const { holland, mbti, disc, aiAnalysis, fromHistory } = location.state;
       setHollandResult(holland);
       setMbtiResult(mbti);
       setDiscResult(disc);
+
+      // If viewing from history, use the saved AI analysis
+      if (fromHistory && aiAnalysis) {
+        setSavedAIAnalysis(aiAnalysis);
+      }
 
       // Set active tab to the first available result
       if (holland) setActiveTab('holland');
@@ -49,11 +56,23 @@ function ResultPage() {
             disc,
             aiAnalysis: null
           };
-          saveResult(resultToSave);
+          const savedId = saveResult(resultToSave);
+          setCurrentResultId(savedId);
         }
       }
     }
   }, [location.state]);
+
+  // Callback when AI analysis completes - save/update it in history
+  const handleAIAnalysisComplete = (analysisText) => {
+    setSavedAIAnalysis(analysisText);
+
+    // Update the saved result with AI analysis
+    if (currentResultId) {
+      const { updateResultAIAnalysis } = require('../lib/storage');
+      updateResultAIAnalysis(currentResultId, analysisText);
+    }
+  };
 
   const tabs = [];
   if (hollandResult) tabs.push({ id: 'holland', name: 'Holland RIASEC', color: 'blue' });
@@ -146,6 +165,8 @@ function ResultPage() {
                 hollandResult={hollandResult}
                 mbtiResult={mbtiResult}
                 discResult={discResult}
+                preSavedAnalysis={savedAIAnalysis}
+                onAnalysisComplete={handleAIAnalysisComplete}
               />
               <ChatWithAI contextPrompt={contextPrompt} />
             </div>

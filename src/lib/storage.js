@@ -104,6 +104,22 @@ export function deleteResultById(id) {
   }
 }
 
+export function updateResultAIAnalysis(id, analysis) {
+  try {
+    const history = getHistory();
+    const index = history.findIndex(r => r.id === id);
+    if (index !== -1) {
+      history[index].aiAnalysis = analysis;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Error updating AI analysis:', error);
+    return false;
+  }
+}
+
 // Save current test progress (for resuming later)
 export function saveCurrentTest(testType, currentIndex, answers) {
   try {
@@ -184,6 +200,7 @@ export default {
   getResultById,
   deleteHistory,
   deleteResultById,
+  updateResultAIAnalysis,
   saveCurrentTest,
   getCurrentTest,
   clearCurrentTest,
