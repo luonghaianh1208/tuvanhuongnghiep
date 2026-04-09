@@ -104,7 +104,7 @@ function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
             <p className="font-be-vietnam text-gray-400 text-[11px] sm:text-xs text-center sm:text-left">
-              © 2026 Đoàn trường THPT Chuyên Nguyễn Trãi. Phân tích AI bằng Gemini API.
+              © 2026 Đoàn trường THPT Chuyên Nguyễn Trãi.
             </p>
             <p className="font-be-vietnam text-gray-500 text-[11px] sm:text-xs text-center sm:text-right">
               Phát triển bởi{' '}
