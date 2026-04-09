@@ -24,7 +24,7 @@ export async function callGeminiAPI(prompt) {
         }],
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 2048,
+          maxOutputTokens: 8192,
           topP: 0.9,
           topK: 40
         }
@@ -58,6 +58,12 @@ am hiểu thị trường lao động Việt Nam và xu hướng AI toàn cầu.
 Hãy phân tích kết quả trắc nghiệm và đưa ra tư vấn cụ thể,
 thực tế, phù hợp với bối cảnh Việt Nam năm 2025-2035.
 Trả lời bằng tiếng Việt, thân thiện nhưng chuyên nghiệp.
+
+[QUAN TRỌNG]
+- BẮT BUỘC trả lời ĐẦY ĐỦ tất cả 6 phần phân tích bên dưới, KHÔNG được bỏ qua hay cắt ngắn phần nào.
+- Mỗi phần phải có nội dung chi tiết, cụ thể, có ví dụ thực tế.
+- Hoàn thành tất cả các câu, KHÔNG để dở dang giữa chừng.
+- Viết đầy đủ tên nghề, không viết tắt.
 
 [DỮ LIỆU NGƯỜI DÙNG]
 `;
@@ -134,7 +140,12 @@ Hãy phân tích theo đúng cấu trúc sau và trả lời đầy đủ tất 
 6. CÂU HỎI TỰ VẤN
    Đưa ra 3 câu hỏi giúp người dùng tự khám phá sâu hơn về con đường sự nghiệp của mình. Các câu hỏi nên thực tế và có thể tự trả lời được.
 
-Lưu ý: Hãy trả lời BẮT BUỘC theo đúng cấu trúc 6 phần trên, không bỏ qua phần nào. Sử dụng markdown để định dạng (tiêu đề in đậm, danh sách gạch đầu dòng).`;
+QUAN TRỌNG: 
+- Hãy trả lời BẮT BUỘC theo đúng cấu trúc 6 phần trên, KHÔNG bỏ qua phần nào.
+- Sử dụng markdown để định dạng (tiêu đề ##, danh sách gạch đầu dòng -).
+- Viết hoàn chỉnh mỗi câu, KHÔNG để dở dang.
+- Tổng độ dài khoảng 1500-2500 từ.
+- Kết thúc bài phân tích bằng dòng: "---\n*Chúc bạn tìm được con đường sự nghiệp phù hợp! 🌟*"`;
 
   return prompt;
 }

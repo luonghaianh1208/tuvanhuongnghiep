@@ -1,41 +1,6 @@
-import React, { useState } from 'react';
-import { callGeminiAPI, buildChatPrompt } from '../../lib/gemini-api.js';
+import React from 'react';
 
 function ChatWithAI({ contextPrompt }) {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const MAX_MESSAGES = 5;
-
-  const handleSend = async () => {
-    if (!input.trim() || messages.length >= MAX_MESSAGES) return;
-
-    const userMessage = input.trim();
-    setInput('');
-    setLoading(true);
-    setError(null);
-
-    // Add user message
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
-
-    try {
-      const conversationHistory = messages;
-      const prompt = buildChatPrompt(contextPrompt, userMessage, conversationHistory);
-      const response = await callGeminiAPI(prompt);
-
-      setMessages(prev => [...prev, { role: 'assistant', content: response }]);
-    } catch (err) {
-      setError(err.message);
-      // Remove the user message if API failed
-      setMessages(prev => prev.slice(0, -1));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const remainingMessages = MAX_MESSAGES - messages.length;
-
   return (
     <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
       {/* Header */}
@@ -47,99 +12,43 @@ function ChatWithAI({ contextPrompt }) {
             </svg>
             <span className="font-be-vietnam font-semibold">Chat với AI</span>
           </div>
-          <span className="font-be-vietnam text-sm bg-white/20 px-3 py-1 rounded-full">
-            {remainingMessages} lượt còn lại
+          <span className="font-be-vietnam text-xs bg-yellow-500/30 text-yellow-200 px-3 py-1 rounded-full">
+            🔒 Tạm khóa
           </span>
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="h-80 overflow-y-auto p-4 space-y-4 bg-gray-50">
-        {messages.length === 0 && !loading && (
-          <div className="text-center py-8">
-            <svg className="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+      {/* Locked Content */}
+      <div className="p-6 sm:p-8 text-center bg-gray-50">
+        <div className="mb-4">
+          <div className="w-16 h-16 mx-auto bg-gray-200 rounded-full flex items-center justify-center">
+            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
-            <p className="font-be-vietnam text-gray-500 text-sm">
-              Hãy đặt câu hỏi về kết quả trắc nghiệm của bạn
-            </p>
-            <p className="font-be-vietnam text-gray-400 text-xs mt-2">
-              Bạn có {MAX_MESSAGES} lượt chat miễn phí
-            </p>
           </div>
-        )}
+        </div>
 
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div
-              className={`max-w-[80%] p-3 rounded-xl ${
-                msg.role === 'user'
-                  ? 'bg-navy text-white rounded-br-none'
-                  : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none'
-              }`}
-            >
-              <p className="font-be-vietnam text-sm whitespace-pre-wrap">{msg.content}</p>
-            </div>
-          </div>
-        ))}
+        <h3 className="font-be-vietnam font-bold text-lg text-navy mb-2">
+          Tính năng đang phát triển
+        </h3>
+        <p className="font-be-vietnam text-gray-600 text-sm mb-4 max-w-md mx-auto leading-relaxed">
+          Chức năng chat trực tiếp với AI đang được phát triển và sẽ ra mắt trong thời gian tới. 
+          Hiện tại bạn có thể sử dụng tính năng <strong className="text-navy">Phân tích chuyên sâu bằng AI</strong> ở phía trên.
+        </p>
 
-        {loading && (
-          <div className="flex justify-start">
-            <div className="bg-white border border-gray-200 p-3 rounded-xl rounded-bl-none">
-              <div className="flex items-center space-x-1">
-                <div className="w-2 h-2 bg-navy rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-navy rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-2 h-2 bg-navy rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-              </div>
-            </div>
+        <div className="bg-white border border-gray-200 rounded-lg p-4 max-w-sm mx-auto">
+          <div className="flex items-center gap-2 mb-2">
+            <svg className="w-4 h-4 text-gold" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+            </svg>
+            <span className="font-be-vietnam text-xs font-semibold text-navy">Sắp ra mắt</span>
           </div>
-        )}
-
-        {error && (
-          <div className="flex justify-center">
-            <div className="bg-red-50 border border-red-200 p-3 rounded-xl">
-              <p className="font-be-vietnam text-red-600 text-sm">{error}</p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Input */}
-      <div className="p-4 border-t border-gray-200 bg-white">
-        {messages.length >= MAX_MESSAGES ? (
-          <div className="text-center py-2">
-            <p className="font-be-vietnam text-gray-500 text-sm">
-              Bạn đã sử dụng hết {MAX_MESSAGES} lượt chat miễn phí
-            </p>
-            <p className="font-be-vietnam text-gray-400 text-xs mt-1">
-              Cảm ơn bạn đã sử dụng dịch vụ!
-            </p>
-          </div>
-        ) : (
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Nhập câu hỏi của bạn..."
-              disabled={loading}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg font-be-vietnam text-sm focus:outline-none focus:ring-2 focus:ring-navy focus:border-transparent disabled:opacity-50"
-            />
-            <button
-              onClick={handleSend}
-              disabled={!input.trim() || loading}
-              className="px-4 py-2 bg-navy text-white font-be-vietnam font-medium rounded-lg hover:bg-navy-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
-            </button>
-          </div>
-        )}
+          <ul className="font-be-vietnam text-xs text-gray-500 text-left space-y-1">
+            <li>• Chat trực tiếp với AI về kết quả</li>
+            <li>• Hỏi đáp về lộ trình học tập</li>
+            <li>• Tư vấn chuyên sâu cá nhân hóa</li>
+          </ul>
+        </div>
       </div>
     </div>
   );
