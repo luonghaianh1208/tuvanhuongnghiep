@@ -47,7 +47,7 @@ export async function submitToGoogleSheet(userInfo, testResults = {}, aiAnalysis
 
 // Lấy URL từ localStorage hoặc env
 export function getGASWebAppURL() {
-  return localStorage.getItem('gas_webapp_url') || import.meta.env.VITE_GAS_WEBAPP_URL || '';
+  return localStorage.getItem('gas_webapp_url') || import.meta.env.VITE_GAS_WEBAPP_URL || 'https://script.google.com/macros/s/AKfycbxoY48AzivX30de88yxMPgfBV_kkKBaW6OWo5T2g_pW4LgDKVfcXuwjIOvshb4O7C07/exec';
 }
 
 // Lưu URL vào localStorage (khi user config)
