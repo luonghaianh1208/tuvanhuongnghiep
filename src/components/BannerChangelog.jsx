@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 // ===== ĐỂ CẬP NHẬT PHIÊN BẢN MỚI =====
 // 1. Đổi CURRENT_VERSION thành version mới (vd: 'v2.2.0')
@@ -66,7 +67,6 @@ function BannerChangelog() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    // Only run on client side
     const seenVersion = localStorage.getItem('seen_version');
     if (seenVersion !== CURRENT_VERSION) {
       setIsOpen(true);
@@ -80,7 +80,7 @@ function BannerChangelog() {
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div 
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity"
       onClick={handleClose}
@@ -152,7 +152,8 @@ function BannerChangelog() {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

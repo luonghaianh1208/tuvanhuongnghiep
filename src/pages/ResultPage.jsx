@@ -5,7 +5,7 @@ import MBTIResult from '../components/results/MBTIResult';
 import DISCResult from '../components/results/DISCResult';
 import CombinedResult from '../components/results/CombinedResult';
 import AIAnalysis from '../components/results/AIAnalysis';
-// import ChatWithAI from '../components/results/ChatWithAI'; // Tạm ẩn chờ hoàn thiện
+
 import { getCombinedResults } from '../lib/scoring';
 import { buildPrompt } from '../lib/gemini-api';
 import { saveResult, getUserInfo } from '../lib/storage';
@@ -171,7 +171,50 @@ function ResultPage() {
                 preSavedAnalysis={savedAIAnalysis}
                 onAnalysisComplete={handleAIAnalysisComplete}
               />
-              {/* <ChatWithAI contextPrompt={contextPrompt} /> */}
+              {/* Nút chia sẻ kết quả */}
+              <div className="bg-white border border-gray-200 rounded-xl p-6">
+                <h3 className="font-be-vietnam font-bold text-lg text-navy mb-3 flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                  </svg>
+                  Chia sẻ kết quả
+                </h3>
+                <p className="font-be-vietnam text-gray-500 text-sm mb-4">
+                  Gửi kết quả trắc nghiệm cho bạn bè hoặc lưu lại để tham khảo sau.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => {
+                      const text = `Kết quả trắc nghiệm hướng nghiệp của tôi:\n` +
+                        (hollandResult ? `Holland: ${hollandResult.code}\n` : '') +
+                        (mbtiResult ? `MBTI: ${mbtiResult.type}\n` : '') +
+                        (discResult ? `DISC: ${discResult.dominant}\n` : '') +
+                        `\nLàm bài tại: ${window.location.origin}`;
+                      if (navigator.share) {
+                        navigator.share({ title: 'Kết quả hướng nghiệp', text });
+                      } else {
+                        navigator.clipboard.writeText(text);
+                        alert('Đã sao chép kết quả vào clipboard!');
+                      }
+                    }}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-navy text-white font-be-vietnam font-medium rounded-lg hover:bg-navy-light transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                    </svg>
+                    Chia sẻ
+                  </button>
+                  <button
+                    onClick={() => window.print()}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-navy font-be-vietnam font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    In kết quả
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </div>
