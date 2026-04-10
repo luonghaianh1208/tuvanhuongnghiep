@@ -8,8 +8,8 @@ import { createPortal } from 'react-dom';
 // 4. Cập nhật mảng CHANGELOG_ITEMS bên dưới
 // =========================================
 
-const CURRENT_VERSION = 'v2.1.1';
-const VERSION_NAME = "Bộ câu hỏi chuẩn quốc tế";
+const CURRENT_VERSION = 'v2.1.3';
+const VERSION_NAME = "Phân tích AI toàn diện & Bộ câu hỏi chuẩn quốc tế";
 const RELEASE_DATE = "10/04/2026";
 
 const CHANGELOG_ITEMS = [
@@ -20,45 +20,33 @@ const CHANGELOG_ITEMS = [
     color: 'text-navy',
     bg: 'bg-blue-50',
     items: [
-      'Toàn bộ bộ câu hỏi Holland RIASEC, MBTI, DISC đã được kiểm định lại theo chuẩn tâm lý học quốc tế',
-      'Sửa 8 câu hỏi bị phân loại sai nhóm, gây kết quả không chính xác',
-      'Loại bỏ câu hỏi trùng lặp, tăng độ phân biệt giữa các nhóm tính cách',
-      'Điểm tương thích nghề nghiệp được tính theo thuật toán thực (không còn ngẫu nhiên)'
+      'Phân tích AI phản hồi siêu tốc, bao gồm 6 mục chuyên sâu: Điểm mạnh nổi bật, Top 3 nghề phù hợp nhất, Lộ trình cụ thể, Kỹ năng cần học ngay, Cảnh báo rủi ro AI, và Câu hỏi tự vấn.',
+      'Toàn bộ bộ câu hỏi Holland RIASEC, MBTI, DISC đã được kiểm định lại theo chuẩn tâm lý học quốc tế.',
+      'Giao diện AI được nâng cấp bắt mắt hơn với hệ thống highlight từ khoá, tag tự động phân màu.',
+      'Đánh giá sát thực tế và chi tiết nhất, loại bỏ tính ngẫu nhiên nhờ thuật toán mới.'
     ]
   },
   {
-    type: 'security',
-    icon: '🔒',
-    title: 'BẢO MẬT',
-    color: 'text-green-700',
-    bg: 'bg-green-50',
+    type: 'feature',
+    icon: '✨',
+    title: 'TÍNH NĂNG MỚI',
+    color: 'text-teal-700',
+    bg: 'bg-teal-50',
     items: [
-      'API key được bảo vệ hoàn toàn phía server (Netlify Function)',
-      'Không còn lộ key qua DevTools'
+      'Thêm tính năng "Chia sẻ kết quả" và "In kết quả" nhanh chóng từ trang phân tích.',
+      'Thông báo cập nhật Changelog thông minh hơn, không gây xung đột giao diện.'
     ]
   },
   {
     type: 'performance',
     icon: '⚡',
-    title: 'HIỆU NĂNG',
+    title: 'HIỆU NĂNG & BẢO MẬT',
     color: 'text-amber-600',
     bg: 'bg-amber-50',
     items: [
-      'Cache kết quả AI — không mất thời gian chờ khi xem lại',
-      'Tự động thử lại khi mạng yếu',
-      'Timeout thông minh 35 giây'
-    ]
-  },
-  {
-    type: 'feature',
-    icon: '📋',
-    title: 'TIỆN ÍCH',
-    color: 'text-teal-700',
-    bg: 'bg-teal-50',
-    items: [
-      'Thêm trang Chính sách bảo mật',
-      'Thành phố Hải Phòng có trong danh sách địa chỉ',
-      'Thêm nghề nghiệp đặc thù vùng Hải Phòng'
+      'Chuyển sang nền tảng Gemini 2.0 Flash phân tích tốc độ cao.',
+      'Bảo mật tuyệt đối, API Key được ẩn hoàn toàn phía hệ thống máy chủ.',
+      'Đã hoàn thiện bộ kiểm thử Unit Test với độ bao phủ cao (43/43 tests passed) để hệ thống hoạt động ổn định nhất.'
     ]
   }
 ];
