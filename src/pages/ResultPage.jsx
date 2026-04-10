@@ -5,7 +5,7 @@ import MBTIResult from '../components/results/MBTIResult';
 import DISCResult from '../components/results/DISCResult';
 import CombinedResult from '../components/results/CombinedResult';
 import AIAnalysis from '../components/results/AIAnalysis';
-import ChatWithAI from '../components/results/ChatWithAI';
+// import ChatWithAI from '../components/results/ChatWithAI'; // Tạm ẩn chờ hoàn thiện
 import { getCombinedResults } from '../lib/scoring';
 import { buildPrompt } from '../lib/gemini-api';
 import { saveResult, getUserInfo } from '../lib/storage';
@@ -171,7 +171,7 @@ function ResultPage() {
                 preSavedAnalysis={savedAIAnalysis}
                 onAnalysisComplete={handleAIAnalysisComplete}
               />
-              <ChatWithAI contextPrompt={contextPrompt} />
+              {/* <ChatWithAI contextPrompt={contextPrompt} /> */}
             </div>
           )}
         </div>
