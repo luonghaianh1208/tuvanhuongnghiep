@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
-import HomePage from './pages/HomePage';
-import TestSelectPage from './pages/TestSelectPage';
-import QuizPage from './pages/QuizPage';
-import ResultPage from './pages/ResultPage';
-import HistoryPage from './pages/HistoryPage';
+import { PageSkeleton } from './components/LoadingSkeleton';
+
+const HomePage = lazy(() => import('./pages/HomePage'));
+const TestSelectPage = lazy(() => import('./pages/TestSelectPage'));
+const QuizPage = lazy(() => import('./pages/QuizPage'));
+const ResultPage = lazy(() => import('./pages/ResultPage'));
+const HistoryPage = lazy(() => import('./pages/HistoryPage'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 import UserInfoModal from './components/UserInfoModal';
 
 const USER_INFO_KEY = 'career_test_user_info';
@@ -34,13 +37,16 @@ function App() {
               }}
             />
           )}
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/select-test" element={<TestSelectPage />} />
-            <Route path="/quiz/:testTypes" element={<QuizPage />} />
-            <Route path="/result" element={<ResultPage />} />
-            <Route path="/history" element={<HistoryPage />} />
-          </Routes>
+          <Suspense fallback={<PageSkeleton />}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/select-test" element={<TestSelectPage />} />
+              <Route path="/quiz/:testTypes" element={<QuizPage />} />
+              <Route path="/result" element={<ResultPage />} />
+              <Route path="/history" element={<HistoryPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            </Routes>
+          </Suspense>
         </main>
         <Footer />
       </div>

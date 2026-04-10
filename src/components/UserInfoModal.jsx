@@ -48,6 +48,7 @@ function UserInfoModal({ onSubmit }) {
   const [phone, setPhone] = useState('');
   const [province, setProvince] = useState('');
   const [careers, setCareers] = useState('');
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [errors, setErrors] = useState({});
   const [isVisible, setIsVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,6 +68,7 @@ function UserInfoModal({ onSubmit }) {
     if (!phone.trim()) newErrors.phone = 'Vui lòng nhập số điện thoại';
     if (!province) newErrors.province = 'Vui lòng chọn Tỉnh/Thành phố';
     if (!careers.trim()) newErrors.careers = 'Vui lòng nhập ngành nghề quan tâm';
+    if (!acceptedPrivacy) newErrors.privacy = 'Vui lòng đồng ý với chính sách bảo mật';
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -229,6 +231,23 @@ function UserInfoModal({ onSubmit }) {
               * Nhập nhiều ngành nghề, ngăn cách với nhau bằng dấu phẩy (,).
             </p>
           </div>
+
+          {/* Privacy Policy */}
+          <div className="flex items-start mt-2">
+            <div className="flex items-center h-5">
+              <input
+                id="privacy"
+                type="checkbox"
+                checked={acceptedPrivacy}
+                onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+                className={`w-4 h-4 rounded focus:ring-navy/30 transition-colors ${errors.privacy ? 'border-red-500' : 'border-gray-300'}`}
+              />
+            </div>
+            <label htmlFor="privacy" className="ml-2 text-sm font-be-vietnam text-gray-600">
+              Tôi đã đọc và đồng ý với <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-navy hover:underline font-semibold">Chính sách bảo mật</a> <span className="text-red-500">*</span>
+            </label>
+          </div>
+          {errors.privacy && <p className="text-red-500 text-xs mt-1 font-be-vietnam">{errors.privacy}</p>}
 
           {/* Submit Button */}
           <button

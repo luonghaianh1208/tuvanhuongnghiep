@@ -1,17 +1,18 @@
 // Gemini API integration for AI career analysis
 // Uses gemini-2.5-flash model
 
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
-
-export async function callGeminiAPI(prompt) {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-
-  if (!apiKey || apiKey === 'your_key_here') {
-    throw new Error('VITE_GEMINI_API_KEY chưa được cấu hình. Vui lòng thêm API key vào file .env');
-  }
+export async function callGeminiAPI(prompt, retryCount = 1) {
+  // Kiểm tra cache local
+  const cacheKey = `gemini_cache_` + Array.from(prompt).reduce((hash, char) => 0 | (31 * hash + char.charCodeAt(0)), 0);
+  const cached = sessionStorage.getItem(cacheKey);
+  if (cached) return JSON.parse(cached);
 
   try {
-    const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 35000); // 35s timeout
+
+    // Gọi qua Netlify Function Proxy thay vì trực tiếp
+    const response = await fetch('/.netlify/functions/api-proxy', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -28,12 +29,15 @@ export async function callGeminiAPI(prompt) {
           topP: 0.9,
           topK: 40
         }
-      })
+      }),
+      signal: controller.signal
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error?.message || `API Error: ${response.status}`);
+      throw new Error(errorData.error || errorData.details || `API Error: ${response.status}`);
     }
 
     const data = await response.json();
@@ -42,10 +46,23 @@ export async function callGeminiAPI(prompt) {
       throw new Error('Không nhận được phản hồi từ Gemini API');
     }
 
-    return data.candidates[0].content.parts[0].text;
+    const resultText = data.candidates[0].content.parts[0].text;
+    
+    // Lưu vào cache
+    try {
+      sessionStorage.setItem(cacheKey, JSON.stringify(resultText));
+    } catch(e) { console.warn('Cache storage full'); }
+
+    return resultText;
   } catch (error) {
-    if (error.message.includes('API key') || error.message.includes('configured')) {
-      throw error;
+    if (error.name === 'AbortError') {
+      if (retryCount > 0) return callGeminiAPI(prompt, retryCount - 1);
+      throw new Error('Thời gian phản hồi quá lâu (Timeout). Vui lòng thử lại.');
+    }
+    
+    if (retryCount > 0 && !error.message.includes('API key')) {
+      console.log('Đang thử kết nối lại Gemini API...');
+      return callGeminiAPI(prompt, retryCount - 1);
     }
     throw new Error(`Lỗi khi gọi Gemini API: ${error.message}`);
   }

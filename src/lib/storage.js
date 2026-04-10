@@ -193,6 +193,16 @@ export function clearPartialResult(testType) {
   }
 }
 
+export function getUserInfo() {
+  try {
+    const data = localStorage.getItem('career_test_user_info');
+    return data ? JSON.parse(data) : null;
+  } catch (error) {
+    console.error('Error getting user info:', error);
+    return null;
+  }
+}
+
 export default {
   generateId,
   saveResult,
@@ -206,5 +216,6 @@ export default {
   clearCurrentTest,
   savePartialResult,
   getPartialResult,
-  clearPartialResult
+  clearPartialResult,
+  getUserInfo
 };

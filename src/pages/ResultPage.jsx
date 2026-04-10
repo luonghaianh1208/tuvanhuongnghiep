@@ -71,8 +71,9 @@ function ResultPage() {
 
     // Update the saved result with AI analysis in localStorage only
     if (currentResultId) {
-      const { updateResultAIAnalysis } = require('../lib/storage');
-      updateResultAIAnalysis(currentResultId, analysisText);
+      import('../lib/storage').then(({ updateResultAIAnalysis }) => {
+        updateResultAIAnalysis(currentResultId, analysisText);
+      });
     }
   };
 

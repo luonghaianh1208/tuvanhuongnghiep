@@ -619,6 +619,52 @@ export const careers = [
     avgSalary: "25-50 triệu",
     aiOutlook: "Phát triển mạnh",
     aiReason: "Nhu cầu ngày càng tăng khi AI phổ biến, cần chuyên gia hiểu cả kỹ thuật lẫn đạo đức"
+  },
+  
+  // Đặc thù Hải Phòng
+  {
+    id: 56,
+    name: "Chuyên viên Logistics (Cảng biển)",
+    description: "Quản lý, điều hành chuỗi cung ứng và vận tải hàng hóa tại cảng biển",
+    hollandCode: "ECS",
+    mbti: ["ESTJ", "ISTJ", "ENTJ"],
+    disc: ["D", "C"],
+    avgSalary: "15-30 triệu",
+    aiOutlook: "Phát triển mạnh",
+    aiReason: "Hải Phòng là trung tâm logistics quốc tế, AI hỗ trợ tối ưu nhưng điều hành vận tải thực tế cần con người"
+  },
+  {
+    id: 57,
+    name: "Kỹ sư Đóng tàu",
+    description: "Thiết kế, chế tạo, kiểm tra và bảo dưỡng các loại tàu biển",
+    hollandCode: "RCI",
+    mbti: ["ISTP", "ESTP", "ISTJ"],
+    disc: ["C", "S"],
+    avgSalary: "15-35 triệu",
+    aiOutlook: "Ổn định",
+    aiReason: "Ngành công nghiệp mũi nhọn của Hải Phòng, yêu cầu làm việc thực tế, chính xác trong môi trường công nghiệp"
+  },
+  {
+    id: 58,
+    name: "Hướng dẫn viên du lịch (Biển đảo)",
+    description: "Hướng dẫn, tổ chức tour và giới thiệu văn hóa du lịch Đồ Sơn, Cát Bà",
+    hollandCode: "SEA",
+    mbti: ["ENFJ", "ESFJ", "ENFP"],
+    disc: ["I", "S"],
+    avgSalary: "10-25 triệu",
+    aiOutlook: "Ổn định",
+    aiReason: "Đòi hỏi kỹ năng giao tiếp, tương tác con người và xử lý tình huống thực tế mà AI khó thay thế"
+  },
+  {
+    id: 59,
+    name: "Kỹ sư Thực phẩm (Chế biến thủy sản)",
+    description: "Nghiên cứu, phát triển và quản lý chất lượng chế biến thủy hải sản",
+    hollandCode: "RIC",
+    mbti: ["ISTJ", "ISFJ", "INTP"],
+    disc: ["C", "S"],
+    avgSalary: "12-25 triệu",
+    aiOutlook: "Ổn định",
+    aiReason: "Tối ưu hóa quy trình chế biến thực phẩm đặc thù cảng biển, cần quan sát và đánh giá chất lượng thực tế"
   }
 ];
 

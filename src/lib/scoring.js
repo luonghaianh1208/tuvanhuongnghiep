@@ -22,7 +22,7 @@ export function calculateHolland(answers) {
   });
 
   // Sort by score descending
-  const sorted = groups.sort((a, b) => scores[b] - scores[a]);
+  const sorted = [...groups].sort((a, b) => scores[b] - scores[a]);
   const top3 = sorted.slice(0, 3);
   const code = top3.join('');
 
@@ -173,7 +173,7 @@ export function calculateDISC(answers) {
   });
 
   // Sort to find dominant style
-  const sorted = groups.sort((a, b) => scores[b] - scores[a]);
+  const sorted = [...groups].sort((a, b) => scores[b] - scores[a]);
   const dominant = sorted[0];
   const secondary = sorted[1];
 
@@ -318,10 +318,11 @@ export function getCombinedResults(results) {
 
   // Calculate compatibility percentages
   const topCareer = sortedCareers[0];
-  const maxPossibleScore = 100; // Rough estimate
+  const maxActualScore = topCareer ? topCareer.combinedScore || 50 : 50;
+  
   const compatibilityResults = sortedCareers.map((career, index) => ({
     ...career,
-    compatibility: Math.round(100 - (index * 8) - Math.random() * 5)
+    compatibility: Math.round(Math.min(99, Math.max(60, (career.combinedScore / maxActualScore) * 100 - (index * 4))))
   }));
 
   return {
