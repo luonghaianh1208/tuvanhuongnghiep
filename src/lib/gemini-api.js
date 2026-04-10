@@ -25,7 +25,7 @@ export async function callGeminiAPI(prompt, retryCount = 1) {
         }],
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 2048,
+          maxOutputTokens: 4096,
           topP: 0.9,
           topK: 40
         }
@@ -77,7 +77,10 @@ thực tế, phù hợp với bối cảnh Việt Nam năm 2025-2035.
 Trả lời bằng tiếng Việt, thân thiện nhưng chuyên nghiệp.
 
 [QUAN TRỌNG]
-- Trình bày ngắn gọn, súc tích, đi thẳng vào vấn đề.
+- BẮT BUỘC trả lời đầy đủ 6 phần phân tích bên dưới.
+- Dùng gạch đầu dòng, không viết đoạn văn dài.
+- In đậm **từ khóa quan trọng** (tên nghề, kỹ năng, mức lương).
+- Mỗi phần bắt đầu bằng heading ## có số thứ tự.
 - Viết đầy đủ tên nghề, không viết tắt.
 
 [DỮ LIỆU NGƯỜI DÙNG]
@@ -155,9 +158,10 @@ Hãy phân tích theo đúng cấu trúc sau và trả lời đầy đủ tất 
 6. CÂU HỎI TỰ VẤN
    Đưa ra 3 câu hỏi giúp người dùng tự khám phá sâu hơn về con đường sự nghiệp của mình. Các câu hỏi nên thực tế và có thể tự trả lời được.
 
-QUAN TRỌNG: 
-- Trình bày dạng liệt kê súc tích thay vì viết đoạn văn dài.
-- Tổng độ dài tối đa 500-800 từ để đảm bảo tốc độ phản hồi nhanh.
+- Sử dụng markdown: heading ##, danh sách -, in đậm **từ khóa**.
+- In đậm tên nghề, kỹ năng, con số quan trọng bằng **bold**.
+- Viết hoàn chỉnh, KHÔNG để dở dang giữa chừng.
+- Tổng độ dài khoảng 1000-1500 từ.
 - Kết thúc bài phân tích bằng dòng: "---\n*Chúc bạn tìm được con đường sự nghiệp phù hợp! 🌟*"`;
 
   return prompt;
