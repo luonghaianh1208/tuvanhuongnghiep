@@ -66,6 +66,7 @@ function UserInfoModal({ onSubmit }) {
     if (!role) newErrors.role = 'Vui lòng chọn đối tượng';
     if (role === 'Khác' && !roleOther.trim()) newErrors.roleOther = 'Vui lòng điền cụ thể';
     if (!phone.trim()) newErrors.phone = 'Vui lòng nhập số điện thoại';
+    else if (!/^0[0-9]{9}$/.test(phone.trim())) newErrors.phone = 'Số điện thoại phải gồm 10 số, bắt đầu bằng số 0';
     if (!province) newErrors.province = 'Vui lòng chọn Tỉnh/Thành phố';
     if (!careers.trim()) newErrors.careers = 'Vui lòng nhập ngành nghề quan tâm';
     if (!acceptedPrivacy) newErrors.privacy = 'Vui lòng đồng ý với chính sách bảo mật';
