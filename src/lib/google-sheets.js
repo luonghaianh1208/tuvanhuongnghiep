@@ -1,11 +1,9 @@
 // Gửi dữ liệu lên Google Sheets qua GAS Web App
 
-const GAS_WEBAPP_URL = 'YOUR_GAS_WEBAPP_URL_HERE'; // Thay bằng URL từ GAS deploy
-
 export async function submitToGoogleSheet(userInfo, testResults = {}, aiAnalysis = '') {
   try {
     const url = getGASWebAppURL();
-    if (!url || url === 'YOUR_GAS_WEBAPP_URL_HERE') {
+    if (!url) {
       console.warn('VITE_GAS_WEBAPP_URL chưa được thiết lập. Bỏ qua việc gửi lên Google Sheets.');
       return null;
     }
@@ -45,25 +43,19 @@ export async function submitToGoogleSheet(userInfo, testResults = {}, aiAnalysis
   }
 }
 
-// Lấy URL từ localStorage hoặc env
+// Lấy URL từ env
 export function getGASWebAppURL() {
-  return localStorage.getItem('gas_webapp_url') || import.meta.env.VITE_GAS_WEBAPP_URL;
-}
-
-// Lưu URL vào localStorage (khi user config)
-export function setGASWebAppURL(url) {
-  localStorage.setItem('gas_webapp_url', url);
+  return import.meta.env.VITE_GAS_WEBAPP_URL;
 }
 
 // Check xem đã config chưa
 export function isGASConfigured() {
   const url = getGASWebAppURL();
-  return url && url !== 'YOUR_GAS_WEBAPP_URL_HERE' && url.startsWith('https://script.google.com');
+  return url && url.startsWith('https://script.google.com');
 }
 
 export default {
   submitToGoogleSheet,
   getGASWebAppURL,
-  setGASWebAppURL,
   isGASConfigured
 };
