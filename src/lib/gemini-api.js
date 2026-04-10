@@ -25,7 +25,7 @@ export async function callGeminiAPI(prompt, retryCount = 1) {
         }],
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 4096,
+          maxOutputTokens: 8192,
           topP: 0.9,
           topK: 40
         }
