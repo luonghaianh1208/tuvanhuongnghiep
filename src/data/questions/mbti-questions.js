@@ -1,13 +1,10 @@
-// MBTI Questions - 60 câu (15 câu mỗi chiều E/I, S/N, T/F, J/P)
-// Mỗi câu chọn 1 trong 2 phương án: A = first letter, B = second letter
-
+// MBTI Questions - 60 câu (15 câu mỗi chiều)
 export const mbtiQuestions = [
-  // E/I - Hướng ngoại vs Hướng nội (Extraversion vs Introversion)
   { id: 'E1', text: 'Sau một ngày dài, bạn thường muốn: A) Trò chuyện với mọi người để nạp lại năng lượng B) Ở một mình để nạp lại năng lượng', type: 'EI', category: 'EI' },
   { id: 'E2', text: 'Khi gặp vấn đề khó, bạn thường: A) Bàn bạc với người khác để tìm ra giải pháp B) Suy nghĩ kỹ một mình trước', type: 'EI', category: 'EI' },
   { id: 'E3', text: 'Trong một bữa tiệc, bạn thường: A) Di chuyển khắp nơi, nói chuyện với nhiều người B) Ở một góc, trò chuyện sâu với một vài người', type: 'EI', category: 'EI' },
   { id: 'E4', text: 'Khi làm việc nhóm, bạn thích: A) Thảo luận trực tiếp với mọi người B) Làm việc độc lập rồi báo cáo kết quả', type: 'EI', category: 'EI' },
-  { id: 'E5', text: 'Bạn được đánh giá là người: A) Nói nhiều, hướng ngoại B) Nghe nhiều, hướng nội', type: 'EI', category: 'EI' },
+  { id: 'E5', text: 'Khi có thời gian rảnh rỗi, bạn thường: A) Rủ bạn bè đi chơi, tham gia các sự kiện B) Ở nhà xem phim, đọc sách hoặc làm việc cá nhân', type: 'EI', category: 'EI' },
   { id: 'E6', text: 'Khi suy nghĩ về một vấn đề, bạn thường: A) Nói ra để tổ chức suy nghĩ B) Suy nghĩ trong đầu trước', type: 'EI', category: 'EI' },
   { id: 'E7', text: 'Bạn thích các hoạt động: A) Có nhiều người tham gia, sôi động B) Yên tĩnh, có không gian riêng tư', type: 'EI', category: 'EI' },
   { id: 'E8', text: 'Khi gặp một người mới, bạn thường: A) Chủ động bắt chuyện trước B) Chờ người khác chủ động trước', type: 'EI', category: 'EI' },
@@ -18,8 +15,6 @@ export const mbtiQuestions = [
   { id: 'E13', text: 'Bạn thích làm việc: A) Với nhiều người, có sự tương tác liên tục B) Một mình hoặc với ít người, có thể tập trung', type: 'EI', category: 'EI' },
   { id: 'E14', text: 'Khi chia sẻ về cuộc sống, bạn thường: A) Kể ra cho mọi người nghe về những gì đã xảy ra B) Giữ những trải nghiệm cho riêng mình', type: 'EI', category: 'EI' },
   { id: 'E15', text: 'Bạn được mô tả là người: A) Hoạt bát, năng động, thích giao tiếp B) Điềm tĩnh, hay suy nghĩ, thích ở một mình', type: 'EI', category: 'EI' },
-
-  // S/N - Giác quan vs Trực giác (Sensing vs Intuition)
   { id: 'N1', text: 'Khi đọc một cuốn sách, bạn thường quan tâm: A) Chi tiết cụ thể, sự kiện và con số B) Ý nghĩa sâu xa và mô hình tổng quát', type: 'SN', category: 'SN' },
   { id: 'N2', text: 'Khi học một chủ đề mới, bạn thích: A) Bắt đầu từ nền tảng cụ thể, từng bước B) Nhìn tổng quan trước, rồi đi sâu vào chi tiết', type: 'SN', category: 'SN' },
   { id: 'N3', text: 'Bạn tin tưởng hơn vào: A) Kinh nghiệm đã được chứng minh B) Cảm giác và linh tính về tương lai', type: 'SN', category: 'SN' },
@@ -30,13 +25,11 @@ export const mbtiQuestions = [
   { id: 'N8', text: 'Khi học một kỹ năng mới, bạn cần: A) Xem hướng dẫn từng bước cụ thể B) Hiểu nguyên lý tổng quát rồi tự khám phá', type: 'SN', category: 'SN' },
   { id: 'N9', text: 'Bạn nhớ tốt hơn khi: A) Có bằng chứng và sự kiện cụ thể B) Có mô hình và kết nối logic', type: 'SN', category: 'SN' },
   { id: 'N10', text: 'Trong công việc, bạn thích: A) Công việc có quy trình rõ ràng B) Công việc có cơ hội sáng tạo mới', type: 'SN', category: 'SN' },
-  { id: 'N11', text: 'Bạn tin vào: A) Những gì đo lường được và chứng minh được B) Những gì có thể trở thành hiện thực', type: 'SN', category: 'SN' },
+  { id: 'N11', text: 'Khi nghe một câu chuyện, bạn chú ý nhiều hơn đến: A) Những chi tiết thực tế và diễn biến sự việc B) Bài học rút ra và ý nghĩa ẩn chứa bên trong', type: 'SN', category: 'SN' },
   { id: 'N12', text: 'Khi đánh giá một ý tưởng, bạn quan tâm: A) Nó đã được thử nghiệm chưa, có hiệu quả không B) Nó có tiềm năng gì, có thể phát triển thế nào', type: 'SN', category: 'SN' },
   { id: 'N13', text: 'Bạn thường: A) Để ý chi tiết và ghi nhớ những gì đã xảy ra B) Nhìn thấy bức tranh lớn và các mối liên hệ', type: 'SN', category: 'SN' },
   { id: 'N14', text: 'Khi giải quyết vấn đề, bạn thường: A) Sử dụng phương pháp đã được chứng minh B) Tìm cách tiếp cận mới, sáng tạo', type: 'SN', category: 'SN' },
   { id: 'N15', text: 'Bạn là người: A) Thực tế, bám sát thực tại B) Mơ mộng, hướng về tương lai', type: 'SN', category: 'SN' },
-
-  // T/F - Lý trí vs Cảm xúc (Thinking vs Feeling)
   { id: 'T1', text: 'Khi đưa ra quyết định, bạn thường: A) Phân tích logic, xem xét ưu nhược điểm B) Cân nhắc cảm xúc và tác động lên người khác', type: 'TF', category: 'TF' },
   { id: 'T2', text: 'Bạn được đánh giá là người: A) Khách quan, công tâm B) Đồng cảm, quan tâm đến cảm xúc người khác', type: 'TF', category: 'TF' },
   { id: 'T3', text: 'Trong tranh cãi, bạn thường: A) Bám vào lý lẽ và sự thật B) Cố gắng hòa giải và giữ mối quan hệ', type: 'TF', category: 'TF' },
@@ -52,8 +45,6 @@ export const mbtiQuestions = [
   { id: 'T13', text: 'Trong mối quan hệ, bạn đánh giá cao: A) Sự trung thực và thẳng thắn B) Sự quan tâm và chăm sóc lẫn nhau', type: 'TF', category: 'TF' },
   { id: 'T14', text: 'Khi phải từ chối ai đó, bạn: A) Nói thẳng để họ hiểu lý do B) Cố gắng làm cho họ không buồn', type: 'TF', category: 'TF' },
   { id: 'T15', text: 'Bạn là người: A) Có lý trí, phân tích B) Có cảm xúc, đồng cảm', type: 'TF', category: 'TF' },
-
-  // J/P - Nguyên tắc vs Linh hoạt (Judging vs Perceiving)
   { id: 'J1', text: 'Bạn thích cuộc sống: A) Có kế hoạch rõ ràng, biết trước sẽ làm gì B) Tự do, linh hoạt, có thể thay đổi', type: 'JP', category: 'JP' },
   { id: 'J2', text: 'Khi làm việc, bạn thường: A) Lên kế hoạch chi tiết trước B) Làm rồi điều chỉnh theo tình huống', type: 'JP', category: 'JP' },
   { id: 'J3', text: 'Bạn được đánh giá là người: A) Có tổ chức, đáng tin cậy B) Linh hoạt, thích ứng nhanh', type: 'JP', category: 'JP' },
@@ -66,7 +57,7 @@ export const mbtiQuestions = [
   { id: 'J10', text: 'Khi có quyết định quan trọng, bạn: A) Phân tích kỹ trước khi quyết định B) Quyết định nhanh và điều chỉnh sau', type: 'JP', category: 'JP' },
   { id: 'J11', text: 'Bạn thấy thoải mái khi: A) Có danh sách việc cần làm và hoàn thành từng việc B) Giữ các lựa chọn mở và linh hoạt', type: 'JP', category: 'JP' },
   { id: 'J12', text: 'Trong một ngày nghỉ, bạn thường: A) Lên kế hoạch từ sáng để làm nhiều việc B) Làm bất cứ điều gì bạn cảm thấy thích hợp vào lúc đó', type: 'JP', category: 'JP' },
-  { id: 'J13', text: 'Bạn đánh giá cao: A) Sự chuẩn bị và tổ chức B) Sự tự do và spontaneity', type: 'JP', category: 'JP' },
+  { id: 'J13', text: 'Bạn đánh giá cao: A) Sự chuẩn bị và tổ chức B) Sự ngẫu hứng và khả năng tùy cơ ứng biến', type: 'JP', category: 'JP' },
   { id: 'J14', text: 'Khi học cho một kỳ thi, bạn thường: A) Lên lịch học và học theo kế hoạch B) Học ngẫu hứng, có thể học nhiều vào phút cuối', type: 'JP', category: 'JP' },
   { id: 'J15', text: 'Bạn là người: A) Thích có cấu trúc và biết trước kế hoạch B) Thích sự tự do và bất ngờ', type: 'JP', category: 'JP' }
 ];

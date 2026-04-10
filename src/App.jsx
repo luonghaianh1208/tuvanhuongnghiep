@@ -11,6 +11,7 @@ const ResultPage = lazy(() => import('./pages/ResultPage'));
 const HistoryPage = lazy(() => import('./pages/HistoryPage'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 import UserInfoModal from './components/UserInfoModal';
+import BannerChangelog from './components/BannerChangelog';
 
 const USER_INFO_KEY = 'career_test_user_info';
 
@@ -27,6 +28,7 @@ function App() {
   return (
     <Router>
       <div className="flex flex-col min-h-screen bg-gray-50 font-be-vietnam">
+        <BannerChangelog />
         <Navbar />
         <main className="flex-grow">
           {showUserModal && (

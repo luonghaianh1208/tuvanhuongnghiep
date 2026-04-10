@@ -1,58 +1,45 @@
 // Holland RIASEC Questions - 42 câu (7 câu mỗi nhóm)
-// Nhóm R (Realistic), I (Investigative), A (Artistic), S (Social), E (Enterprising), C (Conventional)
-
 export const hollandQuestions = [
-  // Nhóm R - Realistic (Thực tế) - Làm việc tay chân, máy móc, thiên nhiên
   { id: 'R1', text: 'Sửa chữa đồ điện tử gia đình như quạt, bóng đèn, ổ cắm', category: 'R', type: 'holland' },
   { id: 'R2', text: 'Lắp ráp máy móc hoặc thiết bị theo hướng dẫn', category: 'R', type: 'holland' },
   { id: 'R3', text: 'Làm việc ngoài trời, chăm sóc cây trồng, làm vườn', category: 'R', type: 'holland' },
   { id: 'R4', text: 'Sửa chữa xe máy hoặc ô tô cơ bản', category: 'R', type: 'holland' },
-  { id: 'R5', text: 'Nấu ăn, chế biến thực phẩm cho gia đình', category: 'R', type: 'holland' },
+  { id: 'R5', text: 'Vận hành hệ thống máy móc hoặc điều khiển dây chuyền sản xuất', category: 'R', type: 'holland' },
   { id: 'R6', text: 'Xây dựng, sửa chữa đồ gỗ trong nhà', category: 'R', type: 'holland' },
   { id: 'R7', text: 'Sử dụng các công cụ thủ công như búa, tuốc nơ vit, kìm', category: 'R', type: 'holland' },
-
-  // Nhóm I - Investigative (Nghiên cứu) - Phân tích, khoa học, tư duy logic
   { id: 'I1', text: 'Làm các bài toán logic, giải đố hoặc puzzle', category: 'I', type: 'holland' },
   { id: 'I2', text: 'Tìm hiểu cách hoạt động của các hiện tượng tự nhiên (sét, núi lửa...)', category: 'I', type: 'holland' },
   { id: 'I3', text: 'Đọc sách khoa học, tạp chí nghiên cứu hoặc bài viết về công nghệ mới', category: 'I', type: 'holland' },
   { id: 'I4', text: 'Làm thí nghiệm khoa học hoặc quan sát các hiện tượng tự nhiên', category: 'I', type: 'holland' },
   { id: 'I5', text: 'Phân tích số liệu, thống kê để tìm xu hướng hoặc quy luật', category: 'I', type: 'holland' },
-  { id: 'I6', text: 'Viết code lập trình để giải quyết vấn đề', category: 'I', type: 'holland' },
+  { id: 'I6', text: 'Khảo sát, thu thập dữ liệu và phân tích kết quả bằng phương pháp khoa học', category: 'I', type: 'holland' },
   { id: 'I7', text: 'Nghiên cứu tìm hiểu về các sản phẩm công nghệ mới', category: 'I', type: 'holland' },
-
-  // Nhóm A - Artistic (Nghệ thuật) - Sáng tạo, biểu đạt, thẩm mỹ
   { id: 'A1', text: 'Viết truyện, thơ, bài hát hoặc kịch bản', category: 'A', type: 'holland' },
   { id: 'A2', text: 'Vẽ tranh, thiết kế đồ họa hoặc minh họa', category: 'A', type: 'holland' },
   { id: 'A3', text: 'Chơi nhạc cụ hoặc sáng tác nhạc', category: 'A', type: 'holland' },
-  { id: 'A4', text: 'Nấu ăn sáng tạo, phát triển công thức mới', category: 'A', type: 'holland' },
+  { id: 'A4', text: 'Thiết kế thời trang, tạo mẫu quần áo hoặc làm đồ trang sức', category: 'A', type: 'holland' },
   { id: 'A5', text: 'Trang trí, thiết kế nội thất hoặc không gian sống', category: 'A', type: 'holland' },
   { id: 'A6', text: 'Chụp ảnh, quay video, dựng phim', category: 'A', type: 'holland' },
   { id: 'A7', text: 'Tham gia các hoạt động sáng tạo như diễn kịch, múa, nhảy', category: 'A', type: 'holland' },
-
-  // Nhóm S - Social (Xã hội) - Giúp đỡ, dạy học, tương tác người
   { id: 'S1', text: 'Giúp đỡ bạn bè hoặc người thân khi gặp khó khăn', category: 'S', type: 'holland' },
   { id: 'S2', text: 'Dạy học hoặc hướng dẫn người khác học một kỹ năng mới', category: 'S', type: 'holland' },
   { id: 'S3', text: 'Tham gia các hoạt động tình nguyện, cộng đồng', category: 'S', type: 'holland' },
   { id: 'S4', text: 'Lắng nghe người khác chia sẻ vấn đề và đưa ra lời khuyên', category: 'S', type: 'holland' },
   { id: 'S5', text: 'Tổ chức các hoạt động nhóm, sự kiện cho mọi người', category: 'S', type: 'holland' },
   { id: 'S6', text: 'Chăm sóc trẻ em, người già hoặc người có nhu cầu đặc biệt', category: 'S', type: 'holland' },
-  { id: 'S7', text: 'Hướng dẫn, đào tạo người khác trong công việc', category: 'S', type: 'holland' },
-
-  // Nhóm E - Enterprising (Doanh nhân) - Lãnh đạo, kinh doanh, thuyết phục
+  { id: 'S7', text: 'Hỗ trợ trấn an tinh thần và biểu lộ sự đồng cảm với người đang gặp khó khăn', category: 'S', type: 'holland' },
   { id: 'E1', text: 'Thuyết phục người khác đồng ý với ý kiến hoặc kế hoạch của mình', category: 'E', type: 'holland' },
   { id: 'E2', text: 'Bán sản phẩm hoặc dịch vụ cho khách hàng', category: 'E', type: 'holland' },
   { id: 'E3', text: 'Tổ chức và lãnh đạo một nhóm hoàn thành mục tiêu chung', category: 'E', type: 'holland' },
   { id: 'E4', text: 'Kinh doanh, buôn bán hoặc tạo ra sản phẩm để bán', category: 'E', type: 'holland' },
-  { id: 'E5', text: 'Thuyết phục người khác tin tưởng và mua sản phẩm của mình', category: 'E', type: 'holland' },
+  { id: 'E5', text: 'Chủ trì một dự án khởi nghiệp hoặc đảm nhận vai trò quản lý dự án', category: 'E', type: 'holland' },
   { id: 'E6', text: 'Đàm phán, thương lượng để đạt được thỏa thuận có lợi', category: 'E', type: 'holland' },
   { id: 'E7', text: 'Chấp nhận rủi ro để theo đuổi cơ hội và thành công', category: 'E', type: 'holland' },
-
-  // Nhóm C - Conventional (Quy củ) - Tổ chức, dữ liệu, quy trình
   { id: 'C1', text: 'Sắp xếp, tổ chức hồ sơ, tài liệu ngăn nắp', category: 'C', type: 'holland' },
   { id: 'C2', text: 'Làm việc với các con số, bảng tính Excel để theo dõi công việc', category: 'C', type: 'holland' },
   { id: 'C3', text: 'Tuân thủ quy trình, quy định và làm theo hướng dẫn có sẵn', category: 'C', type: 'holland' },
   { id: 'C4', text: 'Kiểm tra lại công việc nhiều lần để đảm bảo không có lỗi', category: 'C', type: 'holland' },
   { id: 'C5', text: 'Ghi chép, lưu trữ thông tin một cách có hệ thống', category: 'C', type: 'holland' },
   { id: 'C6', text: 'Làm theo kế hoạch và thời hạn đã đề ra', category: 'C', type: 'holland' },
-  { id: 'C7', text: 'Thích các công việc có cấu trúc rõ ràng và ít thay đổi', category: 'C', type: 'holland' }
+  { id: 'C7', text: 'Thực hiện các công việc kiểm kê, báo cáo định kỳ theo biểu mẫu chuẩn', category: 'C', type: 'holland' }
 ];
