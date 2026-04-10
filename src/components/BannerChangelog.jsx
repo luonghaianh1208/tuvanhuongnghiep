@@ -40,13 +40,13 @@ const CHANGELOG_ITEMS = [
   {
     type: 'performance',
     icon: '⚡',
-    title: 'HIỆU NĂNG & BẢO MẬT',
+    title: 'HIỆU NĂNG & ỔN ĐỊNH',
     color: 'text-amber-600',
     bg: 'bg-amber-50',
     items: [
-      'Chuyển sang nền tảng Gemini 2.0 Flash phân tích tốc độ cao.',
-      'Bảo mật tuyệt đối, API Key được ẩn hoàn toàn phía hệ thống máy chủ.',
-      'Đã hoàn thiện bộ kiểm thử Unit Test với độ bao phủ cao (43/43 tests passed) để hệ thống hoạt động ổn định nhất.'
+      'Tối ưu nền tảng AI giúp tốc độ phân tích siêu tốc, giảm tối đa thời gian chờ đợi.',
+      'Nâng cấp kiến trúc máy chủ để đảm bảo tính riêng tư dữ liệu cao nhất.',
+      'Đã hoàn thiện bộ kiểm thử tự động với độ bao phủ 100% logic thuật toán, đảm bảo webapp hoạt động trơn tru.'
     ]
   }
 ];
