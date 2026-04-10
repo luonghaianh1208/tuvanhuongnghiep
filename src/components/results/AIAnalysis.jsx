@@ -27,22 +27,92 @@ function AIAnalysis({ hollandResult, mbtiResult, discResult, onAnalysisComplete,
     }
   };
 
-  const renderMarkdown = (text) => {
-    // Simple markdown rendering
-    let html = text
-      // Headers
-      .replace(/^### (.*$)/gim, '<h3 class="font-be-vietnam font-semibold text-lg text-navy mt-4 mb-2">$1</h3>')
-      .replace(/^## (.*$)/gim, '<h2 class="font-be-vietnam font-bold text-xl text-navy mt-6 mb-3">$1</h2>')
-      .replace(/^# (.*$)/gim, '<h1 class="font-be-vietnam font-bold text-2xl text-navy mt-6 mb-4">$1</h1>')
-      // Bold
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-navy">$1</strong>')
-      // Lists
-      .replace(/^\- (.*$)/gim, '<li class="ml-4 mb-1">$1</li>')
-      // Line breaks
-      .replace(/\n\n/g, '</p><p class="font-be-vietnam text-gray-700 mb-3">')
-      .replace(/\n/g, '<br/>');
+  // Map section number to color theme
+  const getSectionTheme = (title) => {
+    const lower = title.toLowerCase();
+    if (lower.includes('điểm mạnh')) return { border: 'border-l-blue-500', bg: 'bg-blue-50', text: 'text-blue-800', icon: '💪' };
+    if (lower.includes('nghề') && lower.includes('hợp')) return { border: 'border-l-emerald-500', bg: 'bg-emerald-50', text: 'text-emerald-800', icon: '🎯' };
+    if (lower.includes('lộ trình')) return { border: 'border-l-amber-500', bg: 'bg-amber-50', text: 'text-amber-800', icon: '🗺️' };
+    if (lower.includes('kỹ năng')) return { border: 'border-l-purple-500', bg: 'bg-purple-50', text: 'text-purple-800', icon: '🛠️' };
+    if (lower.includes('rủi ro') || lower.includes('cảnh báo')) return { border: 'border-l-red-500', bg: 'bg-red-50', text: 'text-red-800', icon: '⚠️' };
+    if (lower.includes('câu hỏi') || lower.includes('tự vấn')) return { border: 'border-l-teal-500', bg: 'bg-teal-50', text: 'text-teal-800', icon: '💡' };
+    return { border: 'border-l-navy', bg: 'bg-gray-50', text: 'text-navy', icon: '📌' };
+  };
 
-    return `<p class="font-be-vietnam text-gray-700 mb-3">${html}</p>`;
+  const renderMarkdown = (text) => {
+    // Split into lines for more control
+    const lines = text.split('\n');
+    let html = '';
+    let inSection = false;
+
+    lines.forEach((line, i) => {
+      const trimmed = line.trim();
+
+      // --- Horizontal rule ---
+      if (/^---+$/.test(trimmed)) {
+        if (inSection) { html += '</div>'; inSection = false; }
+        html += '<hr class="my-5 border-t-2 border-dashed border-gray-200"/>';
+        return;
+      }
+
+      // ## Heading - section start
+      const h2Match = trimmed.match(/^##\s+(.+)$/);
+      if (h2Match) {
+        if (inSection) { html += '</div>'; }
+        const theme = getSectionTheme(h2Match[1]);
+        html += `<div class="rounded-xl ${theme.bg} border-l-4 ${theme.border} p-4 my-4">`;
+        html += `<h2 class="font-be-vietnam font-bold text-lg ${theme.text} mb-3 flex items-center gap-2">`;
+        html += `<span class="text-xl">${theme.icon}</span> ${h2Match[1]}</h2>`;
+        inSection = true;
+        return;
+      }
+
+      // ### Sub-heading
+      const h3Match = trimmed.match(/^###\s+(.+)$/);
+      if (h3Match) {
+        html += `<h3 class="font-be-vietnam font-semibold text-base text-navy mt-3 mb-2">${h3Match[1]}</h3>`;
+        return;
+      }
+
+      // # Main heading
+      const h1Match = trimmed.match(/^#\s+(.+)$/);
+      if (h1Match) {
+        if (inSection) { html += '</div>'; inSection = false; }
+        html += `<h1 class="font-be-vietnam font-bold text-xl text-navy mt-5 mb-3">${h1Match[1]}</h1>`;
+        return;
+      }
+
+      // List item
+      const listMatch = trimmed.match(/^[-•]\s+(.+)$/);
+      if (listMatch) {
+        let content = listMatch[1]
+          // Bold text → tag/badge style
+          .replace(/\*\*(.*?)\*\*/g, '<span class="inline-block bg-navy/10 text-navy font-semibold px-2 py-0.5 rounded-md text-sm mx-0.5">$1</span>')
+          // Inline code
+          .replace(/`(.*?)`/g, '<code class="bg-gray-200 text-gray-800 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>');
+        html += `<div class="flex items-start gap-2 mb-2 ml-1">`;
+        html += `<svg class="w-4 h-4 text-green-500 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>`;
+        html += `<span class="font-be-vietnam text-gray-700 text-sm leading-relaxed">${content}</span>`;
+        html += `</div>`;
+        return;
+      }
+
+      // Empty line
+      if (trimmed === '') {
+        html += '<div class="h-2"></div>';
+        return;
+      }
+
+      // Regular paragraph
+      let content = trimmed
+        .replace(/\*\*(.*?)\*\*/g, '<span class="inline-block bg-navy/10 text-navy font-semibold px-2 py-0.5 rounded-md text-sm mx-0.5">$1</span>')
+        .replace(/`(.*?)`/g, '<code class="bg-gray-200 text-gray-800 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>');
+      html += `<p class="font-be-vietnam text-gray-700 text-sm leading-relaxed mb-2">${content}</p>`;
+    });
+
+    if (inSection) { html += '</div>'; }
+
+    return html;
   };
 
   // Show pre-saved analysis directly, or show the button to generate new one
