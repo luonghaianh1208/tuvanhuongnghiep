@@ -8,7 +8,7 @@ import { createPortal } from 'react-dom';
 // 4. Cập nhật mảng CHANGELOG_ITEMS bên dưới
 // =========================================
 
-const CURRENT_VERSION = 'v2.1.0';
+const CURRENT_VERSION = 'v2.1.1';
 const VERSION_NAME = "Bộ câu hỏi chuẩn quốc tế";
 const RELEASE_DATE = "10/04/2026";
 
