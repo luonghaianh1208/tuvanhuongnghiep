@@ -440,7 +440,7 @@ function HomePage() {
                   { name: 'Game Designer', compat: 85, trend: 'Tăng trưởng mạnh' },
                   { name: 'Content Creator', compat: 78, trend: 'Tăng trưởng mạnh' }
                 ].map((career) => (
-                  <div key={review.name} className="bg-white/5 hover:bg-white/10 rounded-2xl p-4 flex items-center justify-between gap-4 transition-colors group">
+                  <div key={career.name} className="bg-white/5 hover:bg-white/10 rounded-2xl p-4 flex items-center justify-between gap-4 transition-colors group">
                     <div className="min-w-0">
                       <span className="font-be-vietnam font-bold text-white text-base block mb-1">{career.name}</span>
                       <span className={`text-[10px] uppercase font-black px-2.5 py-1 rounded-lg inline-block ${
