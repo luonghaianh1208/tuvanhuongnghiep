@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import DOMPurify from 'dompurify';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAdminAuth } from '../../lib/AdminAuthContext';
 import { fetchAllUsers, fetchAllTestResults, deleteUser, deleteTestResult, exportToExcel } from '../../lib/firestore-admin';
@@ -122,7 +123,7 @@ function renderMarkdownDark(text) {
     html += `<p class="text-slate-300 text-xs leading-relaxed mb-1.5">${content}</p>`;
   });
   if (inSection) { html += '</div>'; }
-  return html;
+  return DOMPurify.sanitize(html);
 }
 
 function StatCard({ label, value, icon, color }) {

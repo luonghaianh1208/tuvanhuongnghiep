@@ -3,6 +3,10 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  test: {
+    globals: true,
+    environment: 'node',
+  },
   server: {
     port: 3000,
     open: true
@@ -13,6 +17,7 @@ export default defineConfig({
         manualChunks: {
           'vendor': ['react', 'react-dom', 'react-router-dom'],
           'recharts': ['recharts'],
+          'firebase': ['firebase/app', 'firebase/firestore', 'firebase/auth'],
           'career-data': ['./src/data/careers.js', './src/data/mbti-profiles.js']
         }
       }

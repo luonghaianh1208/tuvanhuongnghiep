@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import DOMPurify from 'dompurify';
 import { callGeminiAPI, buildPrompt } from '../../lib/gemini-api.js';
 
 function AIAnalysis({ hollandResult, mbtiResult, discResult, onAnalysisComplete, preSavedAnalysis, userCareers }) {
@@ -113,7 +114,7 @@ function AIAnalysis({ hollandResult, mbtiResult, discResult, onAnalysisComplete,
 
     if (inSection) { html += '</div>'; }
 
-    return html;
+    return DOMPurify.sanitize(html);
   };
 
   // Show pre-saved analysis directly, or show the button to generate new one
