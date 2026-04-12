@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { callGeminiAPI, buildPrompt } from '../../lib/gemini-api.js';
 
-function AIAnalysis({ hollandResult, mbtiResult, discResult, onAnalysisComplete, preSavedAnalysis }) {
+function AIAnalysis({ hollandResult, mbtiResult, discResult, onAnalysisComplete, preSavedAnalysis, userCareers }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [analysis, setAnalysis] = useState(preSavedAnalysis || null);
@@ -14,7 +14,7 @@ function AIAnalysis({ hollandResult, mbtiResult, discResult, onAnalysisComplete,
     setError(null);
 
     try {
-      const prompt = buildPrompt(hollandResult, mbtiResult, discResult);
+      const prompt = buildPrompt(hollandResult, mbtiResult, discResult, userCareers);
       const result = await callGeminiAPI(prompt);
       setAnalysis(result);
       if (onAnalysisComplete) {
@@ -36,6 +36,7 @@ function AIAnalysis({ hollandResult, mbtiResult, discResult, onAnalysisComplete,
     if (lower.includes('kỹ năng')) return { border: 'border-l-purple-500', bg: 'bg-purple-50', text: 'text-purple-800', icon: '🛠️' };
     if (lower.includes('rủi ro') || lower.includes('cảnh báo')) return { border: 'border-l-red-500', bg: 'bg-red-50', text: 'text-red-800', icon: '⚠️' };
     if (lower.includes('câu hỏi') || lower.includes('tự vấn')) return { border: 'border-l-teal-500', bg: 'bg-teal-50', text: 'text-teal-800', icon: '💡' };
+    if (lower.includes('đánh giá') || lower.includes('ngành nghề đã chọn')) return { border: 'border-l-orange-500', bg: 'bg-orange-50', text: 'text-orange-800', icon: '🔍' };
     return { border: 'border-l-navy', bg: 'bg-gray-50', text: 'text-navy', icon: '📌' };
   };
 

@@ -73,6 +73,7 @@ function renderMarkdownDark(text) {
     if (lower.includes('kỹ năng')) return { border: 'border-purple-500/50', bg: 'bg-purple-500/10', text: 'text-purple-300', icon: '🛠️' };
     if (lower.includes('rủi ro') || lower.includes('cảnh báo')) return { border: 'border-red-500/50', bg: 'bg-red-500/10', text: 'text-red-300', icon: '⚠️' };
     if (lower.includes('câu hỏi') || lower.includes('tự vấn')) return { border: 'border-teal-500/50', bg: 'bg-teal-500/10', text: 'text-teal-300', icon: '💡' };
+    if (lower.includes('đánh giá') || lower.includes('ngành nghề đã chọn')) return { border: 'border-orange-500/50', bg: 'bg-orange-500/10', text: 'text-orange-300', icon: '🔍' };
     return { border: 'border-slate-500/50', bg: 'bg-slate-500/10', text: 'text-slate-300', icon: '📌' };
   };
 

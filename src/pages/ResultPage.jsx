@@ -23,12 +23,19 @@ function ResultPage() {
   const [combinedResults, setCombinedResults] = useState(null);
   const [savedAIAnalysis, setSavedAIAnalysis] = useState(null);
   const [currentResultId, setCurrentResultId] = useState(null);
+  const [userCareers, setUserCareers] = useState([]);
 
   // Ref để đảm bảo CHỈ ghi Firestore 1 lần duy nhất
   const firestoreSubmittedRef = useRef(false);
   const isNewResultRef = useRef(false);
 
   useEffect(() => {
+    // Load user's career interests from localStorage
+    const userInfo = getUserInfo();
+    if (userInfo?.careers && Array.isArray(userInfo.careers)) {
+      setUserCareers(userInfo.careers);
+    }
+
     // Get results from location state
     if (location.state) {
       const { holland, mbti, disc, aiAnalysis, fromHistory } = location.state;
@@ -112,7 +119,7 @@ function ResultPage() {
   if (tabs.length > 1) tabs.push({ id: 'combined', name: 'Tổng hợp', color: 'gold' });
   tabs.push({ id: 'ai', name: 'Phân tích AI', color: 'navy' });
 
-  const contextPrompt = buildPrompt(hollandResult, mbtiResult, discResult);
+  const contextPrompt = buildPrompt(hollandResult, mbtiResult, discResult, userCareers);
 
   const getTabColor = (tab) => {
     const colors = {
@@ -198,6 +205,7 @@ function ResultPage() {
                 discResult={discResult}
                 preSavedAnalysis={savedAIAnalysis}
                 onAnalysisComplete={handleAIAnalysisComplete}
+                userCareers={userCareers}
               />
               {/* Nút chia sẻ kết quả */}
               <div className="bg-white border border-gray-200 rounded-xl p-6">

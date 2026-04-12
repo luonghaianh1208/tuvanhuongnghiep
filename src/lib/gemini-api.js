@@ -68,7 +68,7 @@ export async function callGeminiAPI(prompt, retryCount = 1) {
   }
 }
 
-export function buildPrompt(hollandResult, mbtiResult, discResult) {
+export function buildPrompt(hollandResult, mbtiResult, discResult, userCareers = []) {
   let prompt = `[VAI TRÒ]
 Bạn là chuyên gia tư vấn hướng nghiệp với 20 năm kinh nghiệm,
 am hiểu thị trường lao động Việt Nam và xu hướng AI toàn cầu.
@@ -127,6 +127,13 @@ Phong cách: ${discResult.style}
 `;
   }
 
+  if (userCareers && userCareers.length > 0) {
+    prompt += `
+--- NGÀNH NGHỀ NGƯỜI DÙNG QUAN TÂM (đã chọn khi đăng ký) ---
+${userCareers.map((c, i) => `${i + 1}. ${c}`).join('\n')}
+`;
+  }
+
   prompt += `
 [YÊU CẦU PHÂN TÍCH]
 Hãy phân tích theo đúng cấu trúc sau và trả lời đầy đủ tất cả các phần:
@@ -157,11 +164,20 @@ Hãy phân tích theo đúng cấu trúc sau và trả lời đầy đủ tất 
 
 6. CÂU HỎI TỰ VẤN
    Đưa ra 3 câu hỏi giúp người dùng tự khám phá sâu hơn về con đường sự nghiệp của mình. Các câu hỏi nên thực tế và có thể tự trả lời được.
-
+${userCareers && userCareers.length > 0 ? `
+7. ĐÁNH GIÁ NGÀNH NGHỀ ĐÃ CHỌN
+   Người dùng đã chọn các ngành quan tâm khi đăng ký (xem phần "NGÀNH NGHỀ NGƯỜI DÙNG QUAN TÂM" ở trên).
+   Hãy đánh giá CHI TIẾT từng ngành mà người dùng đã chọn:
+   - Ngành đó có PHÙ HỢP với kết quả trắc nghiệm không? (Phù hợp cao / Phù hợp trung bình / Chưa phù hợp)
+   - Giải thích TẠI SAO phù hợp hoặc không phù hợp (dựa vào Holland, MBTI, DISC)
+   - Nếu PHÙ HỢP: đề xuất hành động cụ thể để theo đuổi ngành đó hiệu quả
+   - Nếu CHƯA PHÙ HỢP: gợi ý ngành thay thế gần nhất phù hợp hơn với kết quả test, và giải thích vì sao
+   - Đánh giá mức độ triển vọng của ngành đó trong 5-10 năm tới tại Việt Nam
+` : ''}
 - Sử dụng markdown: heading ##, danh sách -, in đậm **từ khóa**.
 - In đậm tên nghề, kỹ năng, con số quan trọng bằng **bold**.
 - Viết hoàn chỉnh, KHÔNG để dở dang giữa chừng.
-- Tổng độ dài khoảng 1000-1500 từ.
+- Tổng độ dài khoảng 1200-1800 từ.
 - Kết thúc bài phân tích bằng dòng: "---\n*Chúc bạn tìm được con đường sự nghiệp phù hợp! 🌟*"`;
 
   return prompt;
