@@ -26,6 +26,55 @@ const MOCK_REVIEWS = [
     rating: 4,
     content: 'Nhờ AI tư vấn mà mình biết thêm nhiều khối ngành phù hợp với nhóm tính cách Nghệ thuật. Rất hữu ích cho mùa tuyển sinh này!',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ThuHa'
+  },
+  {
+    name: 'Phạm Quang Minh',
+    role: 'Học sinh lớp 12 Toán',
+    rating: 5,
+    content: 'AI phân tích quá đỉnh! Đọc kết quả MBTI mà tưởng đang có người "đi guốc trong bụng" mình. Mình đã tự tin hơn khi chọn ngành Khoa học dữ liệu.',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=QuangMinh'
+  },
+  {
+    name: 'Vũ Thanh Hằng',
+    role: 'Học sinh lớp 10 Anh',
+    rating: 5,
+    content: 'Trang web màu sắc dễ thương xỉu! Mình làm xong test chia sẻ luôn cho bạn thân cùng lớp. Bài đánh giá siêu nhanh, siêu chuẩn.',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ThanhHang'
+  },
+  {
+    name: 'Đinh Tiến Dũng',
+    role: 'Học sinh lớp 11 Hóa',
+    rating: 4,
+    content: 'Đợt trước mông lung không biết theo Kỹ thuật Hóa học hay Dược, làm xong bộ 3 bài test ở đây thì đã có quyết định chắc chắn. Cảm ơn team!',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=TienDung'
+  },
+  {
+    name: 'Hoàng Bảo Ngọc',
+    role: 'Học sinh lớp 12 Sử',
+    rating: 5,
+    content: 'Điểm thích nhất là không bắt đăng ký rườm rà. Bấm vào là làm luôn. Đỉnh cao thực sự! Phần gợi ý nghề nghiệp của Gemini cập nhật rất nhanh xu hướng mới.',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=BaoNgoc'
+  },
+  {
+    name: 'Bùi Đức Anh',
+    role: 'Sinh viên năm nhất',
+    rating: 5,
+    content: 'Dù đã học Đại học nhưng mình làm lại test để kiểm chứng, kết quả chuẩn đến 98%. Các em cấp 3 nên dùng cái này sớm để đỡ phải chọn nhầm trường.',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=DucAnh'
+  },
+  {
+    name: 'Ngô Thùy Linh',
+    role: 'Phụ huynh học sinh',
+    rating: 5,
+    content: 'Tôi làm thử để định hướng cho con gái đang học lớp 11. Các bài kiểm tra khoa học và dễ hiểu. Rất cảm ơn nhóm tác giả đã xây dựng trang web này.',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ThuyLinh'
+  },
+  {
+    name: 'Đỗ Hải Đăng',
+    role: 'Học sinh lớp 12 Sinh',
+    rating: 5,
+    content: 'Giao diện bắt mắt, đọc kết quả dài nhưng không bị chán. Đặc biệt là có phân tích độ tương thích % với các nghề nghiệp phổ biến. 10 điểm không có nhưng!',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=HaiDang'
   }
 ];
 
@@ -353,9 +402,9 @@ function HomePage() {
           <motion.div 
             className="flex gap-8 w-max px-4"
             animate={{ x: ["0%", "-50%"] }}
-            transition={{ ease: "linear", duration: 30, repeat: Infinity }}
+            transition={{ ease: "linear", duration: 50, repeat: Infinity }}
           >
-            {[...MOCK_REVIEWS, ...MOCK_REVIEWS, ...MOCK_REVIEWS, ...MOCK_REVIEWS, ...MOCK_REVIEWS, ...MOCK_REVIEWS].map((review, i) => (
+            {[...MOCK_REVIEWS, ...MOCK_REVIEWS].map((review, i) => (
               <div 
                 key={i}
                 className="bg-slate-50 rounded-[2.5rem] p-8 relative hover:bg-white hover:shadow-2xl transition-all border border-slate-100 w-[350px] shrink-0"
