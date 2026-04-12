@@ -285,8 +285,8 @@ function AdminDashboard() {
       .slice(0, 10);
   }, [users]);
 
-  // Issue 1: Career statistics based on test results (Holland code → career mapping)
-  const careerFromTestData = useMemo(() => {
+  // Career stats from Holland
+  const hollandCareerData = useMemo(() => {
     const hollandCareerMap = {
       R: 'Kỹ thuật / Công nghệ',
       I: 'Nghiên cứu / Khoa học',
@@ -303,9 +303,47 @@ function AdminDashboard() {
         map[career] = (map[career] || 0) + 1;
       }
     });
-    return Object.entries(map)
-      .sort((a, b) => b[1] - a[1])
-      .map(([name, value]) => ({ name, value }));
+    return Object.entries(map).sort((a, b) => b[1] - a[1]).map(([name, value]) => ({ name, value }));
+  }, [results]);
+
+  // Career stats from MBTI
+  const mbtiCareerData = useMemo(() => {
+    const mbtiCareerMap = {
+      INTJ: 'Chiến lược / Phân tích', INTP: 'Nghiên cứu / Khoa học',
+      ENTJ: 'Quản lý / Lãnh đạo', ENTP: 'Khởi nghiệp / Sáng tạo',
+      INFJ: 'Tư vấn / Tâm lý', INFP: 'Nghệ thuật / Viết lách',
+      ENFJ: 'Giáo dục / Đào tạo', ENFP: 'Truyền thông / Marketing',
+      ISTJ: 'Kế toán / Hành chính', ISFJ: 'Y tế / Chăm sóc',
+      ESTJ: 'Quản trị / Tổ chức', ESFJ: 'Dịch vụ / Cộng đồng',
+      ISTP: 'Kỹ thuật / Cơ khí', ISFP: 'Thiết kế / Mỹ thuật',
+      ESTP: 'Kinh doanh / Bán hàng', ESFP: 'Giải trí / Sự kiện'
+    };
+    const map = {};
+    results.forEach(r => {
+      if (r.mbti?.type) {
+        const career = mbtiCareerMap[r.mbti.type] || 'Khác';
+        map[career] = (map[career] || 0) + 1;
+      }
+    });
+    return Object.entries(map).sort((a, b) => b[1] - a[1]).map(([name, value]) => ({ name, value }));
+  }, [results]);
+
+  // Career stats from DISC
+  const discCareerData = useMemo(() => {
+    const discCareerMap = {
+      D: 'Quản lý / Lãnh đạo',
+      I: 'Truyền thông / PR',
+      S: 'Giáo dục / Y tế',
+      C: 'Phân tích / Kỹ thuật'
+    };
+    const map = {};
+    results.forEach(r => {
+      if (r.disc?.dominant) {
+        const career = discCareerMap[r.disc.dominant] || 'Khác';
+        map[career] = (map[career] || 0) + 1;
+      }
+    });
+    return Object.entries(map).sort((a, b) => b[1] - a[1]).map(([name, value]) => ({ name, value }));
   }, [results]);
 
   // Most popular test
@@ -743,24 +781,54 @@ function AdminDashboard() {
                     </ResponsiveContainer>
                   </div>
 
-                  {/* Issue 1: Career distribution from test results (Holland → Career) */}
+                  {/* Holland → Career */}
                   <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-                    <h3 className="font-be-vietnam font-bold text-white mb-2 text-base">Xu hướng ngành nghề (từ kết quả test)</h3>
-                    <p className="text-slate-500 text-xs font-be-vietnam mb-6">Phân bổ theo mã Holland hàng đầu</p>
+                    <h3 className="font-be-vietnam font-bold text-white mb-2 text-base">Xu hướng ngành nghề — Holland</h3>
+                    <p className="text-slate-500 text-xs font-be-vietnam mb-6">Nhóm ngành theo mã RIASEC hàng đầu</p>
                     <ResponsiveContainer width="100%" height={280}>
-                      <PieChart>
-                        <Pie data={careerFromTestData} cx="50%" cy="50%" innerRadius={50} outerRadius={95} paddingAngle={3} dataKey="value"
-                          label={({ name, percent, x, y }) => (
-                            <text x={x} y={y} textAnchor="middle" dominantBaseline="central" style={{ fontFamily: 'Be Vietnam Pro', fontSize: '11px', fill: '#e2e8f0', fontWeight: 500 }}>
-                              {`${name.split('/')[0].trim()} (${(percent * 100).toFixed(0)}%)`}
-                            </text>
-                          )}
-                          labelLine={{ stroke: '#64748b', strokeWidth: 1 }}
-                        >
-                          {careerFromTestData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                        </Pie>
+                      <BarChart data={hollandCareerData} layout="vertical" margin={{ left: 10 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                        <XAxis type="number" stroke="#64748b" fontSize={11} allowDecimals={false} tick={{ fontFamily: 'Be Vietnam Pro', fill: '#64748b' }} />
+                        <YAxis dataKey="name" type="category" stroke="#cbd5e1" fontSize={11} width={160} tick={{ fontFamily: 'Be Vietnam Pro', fill: '#cbd5e1' }} />
                         <Tooltip contentStyle={TOOLTIP_STYLE} />
-                      </PieChart>
+                        <Bar dataKey="value" radius={[0, 8, 8, 0]} name="Số lượt">
+                          {hollandCareerData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* MBTI → Career */}
+                  <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
+                    <h3 className="font-be-vietnam font-bold text-white mb-2 text-base">Xu hướng ngành nghề — MBTI</h3>
+                    <p className="text-slate-500 text-xs font-be-vietnam mb-6">Nhóm ngành theo tính cách MBTI</p>
+                    <ResponsiveContainer width="100%" height={280}>
+                      <BarChart data={mbtiCareerData} layout="vertical" margin={{ left: 10 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                        <XAxis type="number" stroke="#64748b" fontSize={11} allowDecimals={false} tick={{ fontFamily: 'Be Vietnam Pro', fill: '#64748b' }} />
+                        <YAxis dataKey="name" type="category" stroke="#cbd5e1" fontSize={11} width={180} tick={{ fontFamily: 'Be Vietnam Pro', fill: '#cbd5e1' }} />
+                        <Tooltip contentStyle={TOOLTIP_STYLE} />
+                        <Bar dataKey="value" radius={[0, 8, 8, 0]} name="Số lượt">
+                          {mbtiCareerData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* DISC → Career */}
+                  <div className="bg-white/5 rounded-2xl p-6 border border-white/10 lg:col-span-2">
+                    <h3 className="font-be-vietnam font-bold text-white mb-2 text-base">Xu hướng ngành nghề — DISC</h3>
+                    <p className="text-slate-500 text-xs font-be-vietnam mb-6">Nhóm ngành theo phong cách hành vi DISC</p>
+                    <ResponsiveContainer width="100%" height={250}>
+                      <BarChart data={discCareerData} margin={{ bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                        <XAxis dataKey="name" stroke="#cbd5e1" fontSize={11} tick={{ fontFamily: 'Be Vietnam Pro', fill: '#cbd5e1' }} interval={0} />
+                        <YAxis stroke="#64748b" fontSize={11} allowDecimals={false} tick={{ fontFamily: 'Be Vietnam Pro', fill: '#64748b' }} />
+                        <Tooltip contentStyle={TOOLTIP_STYLE} />
+                        <Bar dataKey="value" radius={[8, 8, 0, 0]} name="Số lượt">
+                          {discCareerData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                        </Bar>
+                      </BarChart>
                     </ResponsiveContainer>
                   </div>
 
