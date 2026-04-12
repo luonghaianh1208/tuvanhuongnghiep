@@ -82,7 +82,11 @@ function QuizPage() {
       if (currentTestIndex < tests.length - 1) {
         // Save current test answers and move to next
         const testResults = calculateTestResults(currentTestType, answers);
-        setResults(prev => ({ ...prev, [currentTestType]: testResults }));
+        setResults(prev => ({
+          ...prev,
+          [currentTestType]: testResults,
+          _rawAnswers: { ...(prev._rawAnswers || {}), [currentTestType]: { ...answers } }
+        }));
         clearPartialResult(currentTestType);
         setCurrentTestIndex(prev => prev + 1);
         setCurrentQuestionIndex(0);
@@ -91,7 +95,8 @@ function QuizPage() {
         // Finish all tests - navigate to result page with state
         const allResults = {
           ...results,
-          [currentTestType]: calculateTestResults(currentTestType, answers)
+          [currentTestType]: calculateTestResults(currentTestType, answers),
+          _rawAnswers: { ...(results._rawAnswers || {}), [currentTestType]: { ...answers } }
         };
         clearPartialResult(currentTestType);
 
@@ -99,7 +104,8 @@ function QuizPage() {
           state: {
             holland: allResults.holland || null,
             mbti: allResults.mbti || null,
-            disc: allResults.disc || null
+            disc: allResults.disc || null,
+            rawAnswers: allResults._rawAnswers || null
           }
         });
       }

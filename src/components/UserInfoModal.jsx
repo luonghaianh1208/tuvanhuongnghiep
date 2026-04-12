@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { submitToGoogleSheet } from '../lib/google-sheets';
+import { submitUserInfo } from '../lib/firestore-submit';
 
 // 34 tỉnh/thành phố theo yêu cầu, đã được sắp xếp theo bảng chữ cái A-Z
 const PROVINCES = [
@@ -47,6 +47,8 @@ function UserInfoModal({ onSubmit }) {
   const [roleOther, setRoleOther] = useState('');
   const [phone, setPhone] = useState('');
   const [province, setProvince] = useState('');
+  const [birthYear, setBirthYear] = useState('');
+  const [school, setSchool] = useState('');
   const [careers, setCareers] = useState('');
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [errors, setErrors] = useState({});
@@ -68,6 +70,9 @@ function UserInfoModal({ onSubmit }) {
     if (!phone.trim()) newErrors.phone = 'Vui lòng nhập số điện thoại';
     else if (!/^0[0-9]{9}$/.test(phone.trim())) newErrors.phone = 'Số điện thoại phải gồm 10 số, bắt đầu bằng số 0';
     if (!province) newErrors.province = 'Vui lòng chọn Tỉnh/Thành phố';
+    if (birthYear && (isNaN(birthYear) || birthYear < 2000 || birthYear > 2020)) {
+      newErrors.birthYear = 'Năm sinh phải từ 2000 đến 2020';
+    }
     if (!careers.trim()) newErrors.careers = 'Vui lòng nhập ngành nghề quan tâm';
     if (!acceptedPrivacy) newErrors.privacy = 'Vui lòng đồng ý với chính sách bảo mật';
     
@@ -86,18 +91,19 @@ function UserInfoModal({ onSubmit }) {
       role: role === 'Khác' ? roleOther.trim() : role,
       phone: phone.trim(),
       province,
-      careers: careers.split(',').map(c => c.trim()).filter(c => c), // Mảng các ngành nghề
+      birthYear: birthYear ? parseInt(birthYear) : null,
+      school: school.trim(),
+      careers: careers.split(',').map(c => c.trim()).filter(c => c),
       createdAt: new Date().toISOString()
     };
 
     localStorage.setItem(USER_INFO_KEY, JSON.stringify(userInfo));
 
-    // Gửi thông tin lên Google Sheets ngay khi người dùng điền (không có testResults)
-    // catch error so we don't block the user if GAS script URL isn't set yet or fails.
+    // Gửi thông tin lên Firestore
     try {
-      await submitToGoogleSheet(userInfo, {}, '');
+      await submitUserInfo(userInfo);
     } catch (err) {
-      console.warn('Kết nối Google Sheets bị lỗi hoặc chưa thiết lập URL, nhưng vẫn lưu cục bộ cho người dùng tiếp tục.', err);
+      console.warn('Gửi Firestore lỗi, nhưng vẫn lưu cục bộ cho người dùng tiếp tục.', err);
     }
 
     setIsVisible(false);
@@ -213,6 +219,37 @@ function UserInfoModal({ onSubmit }) {
               ))}
             </select>
             {errors.province && <p className="text-red-500 text-xs mt-1 font-be-vietnam">{errors.province}</p>}
+          </div>
+
+          {/* Năm sinh */}
+          <div>
+            <label className="block font-be-vietnam font-medium text-navy mb-1.5 text-sm">
+              Năm sinh
+            </label>
+            <input
+              type="number"
+              value={birthYear}
+              onChange={(e) => setBirthYear(e.target.value)}
+              placeholder="VD: 2008"
+              min="2000"
+              max="2020"
+              className={`w-full px-4 py-2.5 border rounded-lg font-be-vietnam text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-navy/30 ${errors.birthYear ? 'border-red-400 bg-red-50' : 'border-gray-300 hover:border-navy/30'}`}
+            />
+            {errors.birthYear && <p className="text-red-500 text-xs mt-1 font-be-vietnam">{errors.birthYear}</p>}
+          </div>
+
+          {/* Trường đang học */}
+          <div>
+            <label className="block font-be-vietnam font-medium text-navy mb-1.5 text-sm">
+              Trường đang học
+            </label>
+            <input
+              type="text"
+              value={school}
+              onChange={(e) => setSchool(e.target.value)}
+              placeholder="VD: THPT Phan Bội Châu"
+              className={`w-full px-4 py-2.5 border rounded-lg font-be-vietnam text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-navy/30 border-gray-300 hover:border-navy/30`}
+            />
           </div>
 
           {/* Ngành nghề quan tâm */}

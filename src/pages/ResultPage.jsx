@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import HollandResult from '../components/results/HollandResult';
 import MBTIResult from '../components/results/MBTIResult';
@@ -9,6 +9,7 @@ import AIAnalysis from '../components/results/AIAnalysis';
 import { getCombinedResults } from '../lib/scoring';
 import { buildPrompt } from '../lib/gemini-api';
 import { saveResult, getUserInfo } from '../lib/storage';
+import { submitTestResults } from '../lib/firestore-submit';
 
 const USER_INFO_KEY = 'career_test_user_info';
 
@@ -22,6 +23,10 @@ function ResultPage() {
   const [combinedResults, setCombinedResults] = useState(null);
   const [savedAIAnalysis, setSavedAIAnalysis] = useState(null);
   const [currentResultId, setCurrentResultId] = useState(null);
+
+  // Ref để đảm bảo CHỈ ghi Firestore 1 lần duy nhất
+  const firestoreSubmittedRef = useRef(false);
+  const isNewResultRef = useRef(false);
 
   useEffect(() => {
     // Get results from location state
@@ -47,6 +52,7 @@ function ResultPage() {
 
         // Only save to history if this is a NEW result (not viewing from history)
         if (!fromHistory) {
+          isNewResultRef.current = true;
           const resultToSave = {
             testsCompleted: [
               holland ? 'holland' : null,
@@ -63,17 +69,39 @@ function ResultPage() {
         }
       }
     }
+
+    // Cleanup: ghi Firestore khi HS rời trang (nếu chưa ghi)
+    return () => {
+      if (isNewResultRef.current && !firestoreSubmittedRef.current && location.state) {
+        firestoreSubmittedRef.current = true;
+        const { holland, mbti, disc, rawAnswers } = location.state;
+        submitTestResults({ holland, mbti, disc, rawAnswers, aiAnalysis: null })
+          .catch(err => console.warn('Firestore cleanup submit failed:', err));
+      }
+    };
   }, [location.state]);
 
   // Callback when AI analysis completes - save/update it in history
   const handleAIAnalysisComplete = async (analysisText) => {
     setSavedAIAnalysis(analysisText);
 
-    // Update the saved result with AI analysis in localStorage only
+    // Update the saved result with AI analysis in localStorage
     if (currentResultId) {
       import('../lib/storage').then(({ updateResultAIAnalysis }) => {
         updateResultAIAnalysis(currentResultId, analysisText);
       });
+    }
+
+    // Ghi Firestore 1 LẦN DUY NHẤT với đầy đủ dữ liệu (bao gồm AI analysis)
+    if (!firestoreSubmittedRef.current) {
+      firestoreSubmittedRef.current = true;
+      submitTestResults({
+        holland: hollandResult,
+        mbti: mbtiResult,
+        disc: discResult,
+        rawAnswers: location.state?.rawAnswers || null,
+        aiAnalysis: analysisText
+      }).catch(err => console.warn('Firestore submit failed:', err));
     }
   };
 
