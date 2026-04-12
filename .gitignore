@@ -26,3 +26,7 @@ yarn-debug.log*
 yarn-error.log*
 
 serviceAccountKey.json
+
+# Agent/AI data
+.agent/
+.gemini/

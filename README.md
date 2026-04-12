@@ -1,133 +1,98 @@
-# Tư Vấn Hướng Nghiệp - Trang Web Trắc Nghiệm
+# AI Career Counseling Platform 🚀
 
-Trang web trắc nghiệm hướng nghiệp tích hợp 3 bộ test (Holland RIASEC, MBTI, DISC), phân tích kết quả bằng thuật toán, và có tùy chọn phân tích nâng cao bằng AI hoàn toàn miễn phí.
+Một nền tảng tư vấn hướng nghiệp toàn diện, tích hợp trí tuệ nhân tạo (AI Gemini), giúp học sinh, sinh viên và người đi làm khám phá thế mạnh bản thân và định hướng sự nghiệp phù hợp. Dự án cung cấp cả giao diện cho người dùng (làm test, nhận phân tích AI) và trang quản trị (Admin Dashboard) để thống kê kết quả.
 
-## Tính năng
+## ✨ Tính Năng Nổi Bật
 
-- **3 bộ trắc nghiệm**: Holland RIASEC, MBTI (16 personalities), DISC
-- **Phân tích AI miễn phí**: Sử dụng Google Gemini API để phân tích chuyên sâu
-- **Không cần đăng nhập**: Lưu kết quả trong localStorage
-- **Giao diện tiếng Việt**: Phù hợp học sinh THPT
-- **Mobile responsive**: Hoạt động tốt trên mọi thiết bị
-- **AI insights**: Nhận xét về triển vọng nghề nghiệp trong thời đại AI
+### 🧑‍🎓 Dành Cho Người Dùng (Client)
+- **Hệ thống bài test chuẩn quốc tế**: Tích hợp các bộ câu hỏi phổ biến và uy tín (Holland RIASEC, MBTI, DISC).
+- **Phân tích AI chuyên sâu**: Tự động tổng hợp kết quả các bài test và yêu cầu AI phân tích chi tiết (Điểm mạnh, Top 3 nghề phù hợp, Lộ trình học tập, Kỹ năng cần thiết, Cảnh báo đào thải của AI).
+- **Đánh giá nghề nghiệp mong muốn**: AI sẽ đối chiếu ngành nghề user quan tâm lúc đăng ký với kết quả test để đưa ra tư vấn mức độ phù hợp và triển vọng 5-10 năm tới.
+- **Tính toán Local & Lưu trữ đa nền tảng**: Xử lý logic offline, lưu trữ dữ liệu đồng bộ qua Firebase Firestore.
+- **Trải nghiệm mượt mà, Dark Theme UI**: Giao diện trẻ trung, hiện đại theo thiết kế GenZ, hỗ trợ render Markdown format.
 
-## Cài đặt
+### 👑 Dành Cho Quản Trị Viên (Admin)
+- **Đăng nhập an toàn**: Tích hợp bảo mật Firebase Google Auth (chỉ cho phép admin được chỉ định).
+- **Dashboard Tổng Quan**: Trực quan hóa số liệu lượng người dùng, biểu đồ xu hướng theo ngày.
+- **Thống kê chuyên sâu (Analytics)**: Cung cấp biểu đồ trực quan (Recharts) theo từng nhóm ngành cho riêng các bài test Holland, MBTI và DISC.
+- **Quản lý Dữ liệu**: Theo dõi danh sách người dùng, xem chi tiết bài test của từng cá nhân.
+- **Xuất dữ liệu thông minh**: Hỗ trợ xuất dữ liệu Test và User ra định dạng Excel (.xlsx) với format chuẩn.
 
-### Yêu cầu
+## 🛠️ Công Nghệ Sử Dụng
 
-- Node.js 18+
-- npm hoặc yarn
+- **Frontend**: React 18, Vite, Tailwind CSS v4, Framer Motion
+- **Chart/Data**: Recharts, SheetJS (XLSX)
+- **Backend/BaaS**: Firebase (Firestore Database, Authentication)
+- **AI Integration**: Google Gemini 2.5 Flash API (Tích hợp qua Netlify Functions giúp bảo mật API Key)
+- **Deploy**: Netlify
 
-### Các bước cài đặt
+## 🚀 Hướng Dẫn Cài Đặt
 
-1. **Clone/Download project** vào thư mục của bạn
+### 1. Yêu cầu hệ thống
+- Node.js bản mới nhất (khuyến nghị >= 18.x)
+- Tài khoản Firebase (để tạo project web)
+- Tài khoản Google Studio / Gemini API Key
 
-2. **Cài đặt dependencies**:
+### 2. Cài đặt chi tiết
+1. Clone repository về máy:
+   ```bash
+   git clone https://github.com/luonghaianh1208/tuvanhuongnghiep.git
+   cd tuvanhuongnghiep
+   ```
+
+2. Cài đặt các thư viện phụ thuộc:
    ```bash
    npm install
    ```
 
-3. **Lấy API Key Gemini** (miễn phí):
-   - Truy cập [aistudio.google.com](https://aistudio.google.com)
-   - Đăng nhập bằng tài khoản Google
-   - Vào mục "Get API key" → "Create API key"
-   - Copy API key
+3. Thiết lập biến môi trường:
+   - Tạo file `.env.local` tại thư mục gốc của project (ngang hàng với `package.json`).
+   - Khai báo các thông tin sau:
+     ```env
+     # Firebase Config (Lấy từ Firebase Console)
+     VITE_FIREBASE_API_KEY=your_firebase_api_key
+     VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+     VITE_FIREBASE_PROJECT_ID=your_project_id
+     VITE_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+     VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+     VITE_FIREBASE_APP_ID=your_app_id
+     
+     # Gemini API Key (Không bắt buộc lấy trực tiếp nếu dùng qua Netlify proxy ở production)
+     VITE_GEMINI_API_KEY=your_gemini_api_key
 
-4. **Tạo file .env** (từ .env.example):
-   ```bash
-   cp .env.example .env
-   ```
-   Sau đó thay `your_key_here` bằng API key của bạn:
-   ```
-   VITE_GEMINI_API_KEY=AIzaSy...
-   ```
+     # Chỉ định email Admin có quyền truy cập Dashboard
+     VITE_ADMIN_EMAIL=your_admin_email@example.com
+     ```
 
-5. **Chạy development server**:
+4. Khởi chạy máy chủ phát triển cục bộ:
    ```bash
    npm run dev
    ```
 
-6. **Mở trình duyệt**: http://localhost:3000
+5. Ứng dụng sẽ chạy tại địa chỉ: `http://localhost:5173`
 
-## Cấu trúc project
-
-```
-src/
-├── components/
-│   ├── layout/          # Navbar, Footer
-│   ├── quiz/           # QuestionCard, ProgressBar, AnswerOptions
-│   └── results/        # Result components for each test type
-├── data/
-│   ├── questions/       # Câu hỏi trắc nghiệm (42 Holland, 60 MBTI, 28 DISC)
-│   ├── careers.js      # 50+ nghề nghiệp
-│   └── mbti-profiles.js # 16 profiles MBTI
-├── lib/
-│   ├── scoring.js      # Thuật toán tính điểm
-│   ├── gemini-api.js   # Gọi Gemini API
-│   └── storage.js      # localStorage helpers
-└── pages/
-    ├── HomePage.jsx    # Landing page
-    ├── TestSelectPage.jsx
-    ├── QuizPage.jsx
-    ├── ResultPage.jsx
-    └── HistoryPage.jsx
+## 🔒 Firebase Security Rules
+Để bảo mật trang Admin, vui lòng cập nhật rules sau lên Firestore Rules:
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /test_results/{document=**} {
+      // Cho phép mọi người read/write trên data cá nhân
+      allow read, write: if true;
+      // Chỉ Admin được xóa
+      allow delete: if request.auth != null && request.auth.token.email == "your_admin_email@example.com";
+    }
+    match /users/{document=**} {
+      allow read, write: if true;
+      allow delete: if request.auth != null && request.auth.token.email == "your_admin_email@example.com";
+    }
+  }
+}
 ```
 
-## Cách sử dụng
+## 📄 Giấy phép Bản Quyền (License)
 
-1. **Trang chủ**: Xem giới thiệu về 3 bài test, bấm "Bắt đầu trắc nghiệm"
-
-2. **Chọn bài test**: Chọn 1 hoặc nhiều bài test muốn làm
-
-3. **Làm bài**:
-   - Mỗi câu hỏi hiển thị một, có nút Trước/ Tiếp theo
-   - Thanh tiến trình hiển thị % hoàn thành
-   - Có thể tạm dừng và quay lại sau (được lưu tự động)
-
-4. **Xem kết quả**:
-   - Kết quả từng bài test với biểu đồ
-   - Top nghề phù hợp cho từng loại tính cách
-   - Nhãn "Triển vọng trong thời đại AI" cho từng nghề
-
-5. **Phân tích AI** (miễn phí):
-   - Bấm "Phân tích chuyên sâu bằng AI"
-   - Xem phân tích điểm mạnh, lộ trình học tập, dự báo xu hướng
-   - Chat thêm 5 lượt với AI về kết quả
-
-6. **Lịch sử**: Xem lại các lần làm bài trước trong "Kết quả của tôi"
-
-## Các bài test
-
-### Holland RIASEC (42 câu)
-- 6 nhóm tính cách: R (Thực tế), I (Nghiên cứu), A (Nghệ thuật), S (Xã hội), E (Doanh nhân), C (Quy củ)
-- Mỗi nhóm 7 câu hỏi, thang điểm 1-5
-- Kết quả: Mã Holland 3 chữ (vd: IAS, SEC) + 10-15 nghề phù hợp
-
-### MBTI (60 câu)
-- 4 chiều: E/I, S/N, T/F, J/P
-- 16 personality types
-- Mỗi câu chọn 1 trong 2 phương án
-
-### DISC (28 câu)
-- 4 nhóm: D (Thống trị), I (Ảnh hưởng), S (Ổn định), C (Cẩn thận)
-- Mỗi nhóm 7 câu, thang điểm 1-5
-- Xác định phong cách chủ đạo và phụ
-
-## Triển vọng AI
-
-Mỗi nghề trong database có đánh giá triển vọng AI:
-- **Phát triển mạnh**: Nghề sẽ thịnh vượng nhờ AI
-- **Ổn định**: Nghề ít bị AI ảnh hưởng
-- **Rủi ro cao**: Nghề có nguy cơ bị AI thay thế
-
-## Công nghệ
-
-- React 18 + Vite
-- Tailwind CSS
-- Recharts (biểu đồ)
-- Google Gemini API
-- localStorage (lưu trữ phía client)
-
-## License
-
-MIT
+Dự án này được phân phối dưới giấy phép **MIT License**.
+Bản quyền © 2026 thuộc về **LƯƠNG HẢI ANH**.
+Xem chi tiết các quyền lợi và giới hạn tại file [LICENSE](./LICENSE).
