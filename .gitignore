@@ -30,3 +30,7 @@ serviceAccountKey.json
 # Agent/AI data
 .agent/
 .gemini/
+
+# Data files (Prevent PII leaks)
+*.csv
+*.xlsx
