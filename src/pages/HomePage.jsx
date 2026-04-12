@@ -6,6 +6,7 @@ const SCHOOL_LOGO = 'https://doantruong.chuyennguyentrai.edu.vn/wp-content/uploa
 const DOAN_LOGO = 'https://doantruong.chuyennguyentrai.edu.vn/wp-content/uploads/2025/12/Huy_Hieu_Doan.png';
 
 const MOCK_REVIEWS = [
+  // 4 Học sinh (HS)
   {
     name: 'Nguyễn Minh Anh',
     role: 'Học sinh lớp 12 Tin',
@@ -28,53 +29,57 @@ const MOCK_REVIEWS = [
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ThuHa'
   },
   {
-    name: 'Phạm Quang Minh',
-    role: 'Học sinh lớp 12 Toán',
-    rating: 5,
-    content: 'AI phân tích quá đỉnh! Đọc kết quả MBTI mà tưởng đang có người "đi guốc trong bụng" mình. Mình đã tự tin hơn khi chọn ngành Khoa học dữ liệu.',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=QuangMinh'
-  },
-  {
-    name: 'Vũ Thanh Hằng',
-    role: 'Học sinh lớp 10 Anh',
-    rating: 5,
-    content: 'Trang web màu sắc dễ thương xỉu! Mình làm xong test chia sẻ luôn cho bạn thân cùng lớp. Bài đánh giá siêu nhanh, siêu chuẩn.',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ThanhHang'
-  },
-  {
     name: 'Đinh Tiến Dũng',
     role: 'Học sinh lớp 11 Hóa',
-    rating: 4,
-    content: 'Đợt trước mông lung không biết theo Kỹ thuật Hóa học hay Dược, làm xong bộ 3 bài test ở đây thì đã có quyết định chắc chắn. Cảm ơn team!',
+    rating: 5,
+    content: 'Từng mông lung không biết theo Kỹ thuật Hóa học hay Dược, làm xong bộ 3 bài test ở đây thì mình đã có quyết định chắc chắn. Cảm ơn team!',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=TienDung'
   },
-  {
-    name: 'Hoàng Bảo Ngọc',
-    role: 'Học sinh lớp 12 Sử',
-    rating: 5,
-    content: 'Điểm thích nhất là không bắt đăng ký rườm rà. Bấm vào là làm luôn. Đỉnh cao thực sự! Phần gợi ý nghề nghiệp của Gemini cập nhật rất nhanh xu hướng mới.',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=BaoNgoc'
-  },
-  {
-    name: 'Bùi Đức Anh',
-    role: 'Sinh viên năm nhất',
-    rating: 5,
-    content: 'Dù đã học Đại học nhưng mình làm lại test để kiểm chứng, kết quả chuẩn đến 98%. Các em cấp 3 nên dùng cái này sớm để đỡ phải chọn nhầm trường.',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=DucAnh'
-  },
+  
+  // 3 Phụ huynh (PH)
   {
     name: 'Ngô Thùy Linh',
-    role: 'Phụ huynh học sinh',
+    role: 'Phụ huynh lớp 11',
     rating: 5,
     content: 'Tôi làm thử để định hướng cho con gái đang học lớp 11. Các bài kiểm tra khoa học và dễ hiểu. Rất cảm ơn nhóm tác giả đã xây dựng trang web này.',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ThuyLinh'
   },
   {
-    name: 'Đỗ Hải Đăng',
-    role: 'Học sinh lớp 12 Sinh',
+    name: 'Bùi Trung Kiên',
+    role: 'Phụ huynh lớp 12',
+    rating: 4,
+    content: 'Lúc đầu cháu chọn ngành IT theo phong trào, nhưng sau khi xem điểm yếu qua bài test DISC, gia đình đã ngồi lại để định hướng nghề phù hợp với sức học của con hơn.',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=TrungKien'
+  },
+  {
+    name: 'Trần Thị Loan',
+    role: 'Phụ huynh lớp 10',
     rating: 5,
-    content: 'Giao diện bắt mắt, đọc kết quả dài nhưng không bị chán. Đặc biệt là có phân tích độ tương thích % với các nghề nghiệp phổ biến. 10 điểm không có nhưng!',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=HaiDang'
+    content: 'Nhờ có AI hỗ trợ mà giao diện dễ thao tác với cả phụ huynh. Tôi đã thấu hiểu tâm lý và sở trường của con trai mình thay vì chỉ ép cháu học khối A như trước.',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ThiLoan'
+  },
+
+  // 3 Giáo viên (GV)
+  {
+    name: 'Cô Nguyễn Hương',
+    role: 'Giáo viên Chủ nhiệm',
+    rating: 5,
+    content: 'Tôi thường dùng web này cho tiết sinh hoạt lớp. Học sinh rất thích vì test miễn phí, kết quả lại trả về nhanh gọn mà các em không lười vì phải tạo tài khoản.',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=NguyenHuong'
+  },
+  {
+    name: 'Thầy Đỗ Tuấn',
+    role: 'Giáo viên dạy Toán',
+    rating: 5,
+    content: 'Một website giáo dục rất thực tế, thiết kế ấn tượng theo kiểu Gen Z. Công cụ đo lường Holland giúp tôi cố vấn chọn khối ngành ĐH chính xác hơn cho học trò.',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=DoTuan'
+  },
+  {
+    name: 'Cô Phạm Lan',
+    role: 'Chuyên viên Tâm lý học đường',
+    rating: 5,
+    content: 'Về phương diện tâm lý học, kết quả test MBTI tại đây cực kỳ sát và chi tiết. Phần AI (Gen AI) tích hợp rất thông minh giúp tự động tháo gỡ nhiều băn khoăn của các em.',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=PhamLan'
   }
 ];
 
