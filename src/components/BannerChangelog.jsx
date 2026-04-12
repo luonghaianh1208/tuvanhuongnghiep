@@ -8,9 +8,9 @@ import { createPortal } from 'react-dom';
 // 4. Cập nhật mảng CHANGELOG_ITEMS bên dưới
 // =========================================
 
-const CURRENT_VERSION = 'v2.1.3';
-const VERSION_NAME = "Phân tích AI toàn diện & Bộ câu hỏi chuẩn quốc tế";
-const RELEASE_DATE = "10/04/2026";
+const CURRENT_VERSION = 'v2.2.0';
+const VERSION_NAME = "AI đánh giá ngành nghề bạn đã chọn";
+const RELEASE_DATE = "13/04/2026";
 
 const CHANGELOG_ITEMS = [
   {
@@ -20,33 +20,9 @@ const CHANGELOG_ITEMS = [
     color: 'text-navy',
     bg: 'bg-blue-50',
     items: [
-      'Phân tích AI phản hồi siêu tốc, bao gồm 6 mục chuyên sâu: Điểm mạnh nổi bật, Top 3 nghề phù hợp nhất, Lộ trình cụ thể, Kỹ năng cần học ngay, Cảnh báo rủi ro AI, và Câu hỏi tự vấn.',
-      'Toàn bộ bộ câu hỏi Holland RIASEC, MBTI, DISC đã được kiểm định lại theo chuẩn tâm lý học quốc tế.',
-      'Giao diện AI được nâng cấp bắt mắt hơn với hệ thống highlight từ khoá, tag tự động phân màu.',
-      'Đánh giá sát thực tế và chi tiết nhất, loại bỏ tính ngẫu nhiên nhờ thuật toán mới.'
-    ]
-  },
-  {
-    type: 'feature',
-    icon: '✨',
-    title: 'TÍNH NĂNG MỚI',
-    color: 'text-teal-700',
-    bg: 'bg-teal-50',
-    items: [
-      'Thêm tính năng "Chia sẻ kết quả" và "In kết quả" nhanh chóng từ trang phân tích.',
-      'Thông báo cập nhật Changelog thông minh hơn, không gây xung đột giao diện.'
-    ]
-  },
-  {
-    type: 'performance',
-    icon: '⚡',
-    title: 'HIỆU NĂNG & ỔN ĐỊNH',
-    color: 'text-amber-600',
-    bg: 'bg-amber-50',
-    items: [
-      'Tối ưu nền tảng AI giúp tốc độ phân tích siêu tốc, giảm tối đa thời gian chờ đợi.',
-      'Nâng cấp kiến trúc máy chủ để đảm bảo tính riêng tư dữ liệu cao nhất.',
-      'Đã hoàn thiện bộ kiểm thử tự động với độ bao phủ 100% logic thuật toán, đảm bảo webapp hoạt động trơn tru.'
+      'AI giờ đây sẽ đánh giá ngành nghề bạn đã chọn khi đăng ký — so sánh với kết quả trắc nghiệm và cho biết mức độ phù hợp (Cao / Trung bình / Chưa phù hợp).',
+      'Nếu ngành bạn chọn chưa phù hợp, AI sẽ gợi ý ngành thay thế gần nhất cùng hành động cụ thể cần làm.',
+      'Bài phân tích AI mở rộng lên 7 mục chuyên sâu, bổ sung phần "Đánh giá ngành nghề đã chọn" với triển vọng 5-10 năm tại Việt Nam.'
     ]
   }
 ];
