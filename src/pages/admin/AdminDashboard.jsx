@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAdminAuth } from '../../lib/AdminAuthContext';
-import { fetchAllUsers, fetchAllTestResults, deleteUser, deleteTestResult, exportToCSV } from '../../lib/firestore-admin';
+import { fetchAllUsers, fetchAllTestResults, deleteUser, deleteTestResult, exportToExcel } from '../../lib/firestore-admin';
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid,
   PolarAngleAxis, PolarRadiusAxis, AreaChart, Area, XAxis, YAxis, CartesianGrid,
@@ -16,12 +16,112 @@ const TABS = [
   { id: 'export', label: 'Xuất dữ liệu', icon: 'M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' }
 ];
 
-const COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899'];
+const COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
+const TOOLTIP_STYLE = { background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', fontFamily: 'Be Vietnam Pro', fontSize: '13px' };
 
 function formatDate(ts) {
   if (!ts) return '—';
   const d = ts.seconds ? new Date(ts.seconds * 1000) : new Date(ts);
   return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+// Normalize career names: remove diacritics, trim, lowercase, then capitalize
+function normalizeCareer(name) {
+  if (!name) return '';
+  return name.trim().replace(/\s+/g, ' ');
+}
+
+function removeDiacritics(str) {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+}
+
+function groupCareerNames(careerMap) {
+  const normalized = {};
+  const displayNames = {};
+
+  Object.entries(careerMap).forEach(([name, count]) => {
+    const key = removeDiacritics(name);
+    if (!normalized[key]) {
+      normalized[key] = 0;
+      displayNames[key] = name;
+    }
+    normalized[key] += count;
+    // Keep the version with most occurrences as display name
+    if (count > (careerMap[displayNames[key]] || 0) || name.length > displayNames[key].length) {
+      displayNames[key] = name;
+    }
+  });
+
+  return Object.entries(normalized).map(([key, value]) => ({
+    name: displayNames[key],
+    value
+  }));
+}
+
+// Markdown renderer for admin (dark theme version)
+function renderMarkdownDark(text) {
+  if (!text) return '';
+  const lines = text.split('\n');
+  let html = '';
+  let inSection = false;
+
+  const getSectionTheme = (title) => {
+    const lower = title.toLowerCase();
+    if (lower.includes('điểm mạnh')) return { border: 'border-blue-500/50', bg: 'bg-blue-500/10', text: 'text-blue-300', icon: '💪' };
+    if (lower.includes('nghề') && lower.includes('hợp')) return { border: 'border-emerald-500/50', bg: 'bg-emerald-500/10', text: 'text-emerald-300', icon: '🎯' };
+    if (lower.includes('lộ trình')) return { border: 'border-amber-500/50', bg: 'bg-amber-500/10', text: 'text-amber-300', icon: '🗺️' };
+    if (lower.includes('kỹ năng')) return { border: 'border-purple-500/50', bg: 'bg-purple-500/10', text: 'text-purple-300', icon: '🛠️' };
+    if (lower.includes('rủi ro') || lower.includes('cảnh báo')) return { border: 'border-red-500/50', bg: 'bg-red-500/10', text: 'text-red-300', icon: '⚠️' };
+    if (lower.includes('câu hỏi') || lower.includes('tự vấn')) return { border: 'border-teal-500/50', bg: 'bg-teal-500/10', text: 'text-teal-300', icon: '💡' };
+    return { border: 'border-slate-500/50', bg: 'bg-slate-500/10', text: 'text-slate-300', icon: '📌' };
+  };
+
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+    if (/^---+$/.test(trimmed)) {
+      if (inSection) { html += '</div>'; inSection = false; }
+      html += '<hr class="my-4 border-t border-white/10"/>';
+      return;
+    }
+    const h2Match = trimmed.match(/^##\s+(.+)$/);
+    if (h2Match) {
+      if (inSection) { html += '</div>'; }
+      const theme = getSectionTheme(h2Match[1]);
+      html += `<div class="rounded-xl ${theme.bg} border-l-4 ${theme.border} p-4 my-3">`;
+      html += `<h2 class="font-be-vietnam font-bold text-sm ${theme.text} mb-2 flex items-center gap-2">`;
+      html += `<span>${theme.icon}</span> ${h2Match[1]}</h2>`;
+      inSection = true;
+      return;
+    }
+    const h3Match = trimmed.match(/^###\s+(.+)$/);
+    if (h3Match) {
+      html += `<h3 class="font-be-vietnam font-semibold text-xs text-slate-200 mt-2 mb-1">${h3Match[1]}</h3>`;
+      return;
+    }
+    const h1Match = trimmed.match(/^#\s+(.+)$/);
+    if (h1Match) {
+      if (inSection) { html += '</div>'; inSection = false; }
+      html += `<h1 class="font-be-vietnam font-bold text-base text-white mt-4 mb-2">${h1Match[1]}</h1>`;
+      return;
+    }
+    const listMatch = trimmed.match(/^[-•]\s+(.+)$/);
+    if (listMatch) {
+      let content = listMatch[1]
+        .replace(/\*\*(.*?)\*\*/g, '<span class="text-amber-400 font-semibold">$1</span>')
+        .replace(/`(.*?)`/g, '<code class="bg-white/10 text-slate-200 px-1 py-0.5 rounded text-[10px]">$1</code>');
+      html += `<div class="flex items-start gap-2 mb-1.5 ml-1">`;
+      html += `<span class="text-emerald-400 mt-0.5 text-xs">●</span>`;
+      html += `<span class="text-slate-300 text-xs leading-relaxed">${content}</span></div>`;
+      return;
+    }
+    if (trimmed === '') { html += '<div class="h-1.5"></div>'; return; }
+    let content = trimmed
+      .replace(/\*\*(.*?)\*\*/g, '<span class="text-amber-400 font-semibold">$1</span>')
+      .replace(/`(.*?)`/g, '<code class="bg-white/10 text-slate-200 px-1 py-0.5 rounded text-[10px]">$1</code>');
+    html += `<p class="text-slate-300 text-xs leading-relaxed mb-1.5">${content}</p>`;
+  });
+  if (inSection) { html += '</div>'; }
+  return html;
 }
 
 function StatCard({ label, value, icon, color }) {
@@ -52,9 +152,7 @@ function AdminDashboard() {
   const [expandedResult, setExpandedResult] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useEffect(() => { loadData(); }, []);
 
   async function loadData() {
     setLoading(true);
@@ -81,6 +179,13 @@ function AdminDashboard() {
     });
   }, [users, searchTerm, filterProvince, filterRole]);
 
+  // Map userId → userName for results
+  const userMap = useMemo(() => {
+    const map = {};
+    users.forEach(u => { map[u.id] = u; });
+    return map;
+  }, [users]);
+
   // Chart: Registrations per day (last 30 days)
   const dailyRegistrations = useMemo(() => {
     const map = {};
@@ -98,6 +203,24 @@ function AdminDashboard() {
     });
     return Object.entries(map).map(([date, count]) => ({ date, count }));
   }, [users]);
+
+  // Chart: Tests per day (moved to overview - Issue 7)
+  const dailyTests = useMemo(() => {
+    const map = {};
+    const now = new Date();
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(now); d.setDate(d.getDate() - i);
+      map[d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })] = 0;
+    }
+    results.forEach(r => {
+      if (r.createdAt?.seconds) {
+        const d = new Date(r.createdAt.seconds * 1000);
+        const key = d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+        if (map[key] !== undefined) map[key]++;
+      }
+    });
+    return Object.entries(map).map(([date, count]) => ({ date, count }));
+  }, [results]);
 
   // Chart: Province distribution (top 10)
   const provinceData = useMemo(() => {
@@ -146,35 +269,44 @@ function AdminDashboard() {
     return Object.entries(map).map(([key, value]) => ({ name: labels[key] || key, value }));
   }, [results]);
 
-  // Chart: Tests per day
-  const dailyTests = useMemo(() => {
-    const map = {};
-    const now = new Date();
-    for (let i = 29; i >= 0; i--) {
-      const d = new Date(now); d.setDate(d.getDate() - i);
-      map[d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })] = 0;
-    }
-    results.forEach(r => {
-      if (r.createdAt?.seconds) {
-        const d = new Date(r.createdAt.seconds * 1000);
-        const key = d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
-        if (map[key] !== undefined) map[key]++;
-      }
-    });
-    return Object.entries(map).map(([date, count]) => ({ date, count }));
-  }, [results]);
-
-  // Chart: Popular careers
+  // Chart: Popular careers (Issue 8 - normalize and merge)
   const careerData = useMemo(() => {
     const map = {};
     users.forEach(u => {
       if (u.careers && Array.isArray(u.careers)) {
-        u.careers.forEach(c => { if (c) map[c] = (map[c] || 0) + 1; });
+        u.careers.forEach(c => {
+          const n = normalizeCareer(c);
+          if (n) map[n] = (map[n] || 0) + 1;
+        });
       }
     });
-    return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 10)
-      .map(([name, value]) => ({ name, value }));
+    return groupCareerNames(map)
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 10);
   }, [users]);
+
+  // Issue 1: Career statistics based on test results (Holland code → career mapping)
+  const careerFromTestData = useMemo(() => {
+    const hollandCareerMap = {
+      R: 'Kỹ thuật / Công nghệ',
+      I: 'Nghiên cứu / Khoa học',
+      A: 'Nghệ thuật / Sáng tạo',
+      S: 'Xã hội / Giáo dục',
+      E: 'Kinh doanh / Quản lý',
+      C: 'Hành chính / Tổ chức'
+    };
+    const map = {};
+    results.forEach(r => {
+      if (r.holland?.code) {
+        const topCode = r.holland.code.charAt(0);
+        const career = hollandCareerMap[topCode] || 'Khác';
+        map[career] = (map[career] || 0) + 1;
+      }
+    });
+    return Object.entries(map)
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, value]) => ({ name, value }));
+  }, [results]);
 
   // Most popular test
   const topTest = useMemo(() => {
@@ -202,6 +334,18 @@ function AdminDashboard() {
     setResults(prev => prev.filter(r => r.id !== id));
   }
 
+  // Get user info for a test result (Issue 3)
+  function getUserForResult(result) {
+    if (result.firestoreUserId && userMap[result.firestoreUserId]) {
+      return userMap[result.firestoreUserId];
+    }
+    // Fallback: match by deviceId
+    if (result.deviceId) {
+      return users.find(u => u.deviceId === result.deviceId) || null;
+    }
+    return null;
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
@@ -216,7 +360,7 @@ function AdminDashboard() {
   return (
     <div className="min-h-screen bg-[#0f172a] flex">
       {/* Sidebar */}
-      <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-[#0a0f1e] border-r border-white/5 flex flex-col transition-all duration-300 shrink-0`}>
+      <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-[#0a0f1e] border-r border-white/5 flex flex-col transition-all duration-300 shrink-0 fixed top-0 left-0 h-screen z-40`}>
         <div className="p-6 border-b border-white/5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
@@ -266,8 +410,8 @@ function AdminDashboard() {
         </div>
       </aside>
 
-      {/* Main content */}
-      <main className="flex-1 overflow-y-auto">
+      {/* Main content - Issue 4: add pt for header spacing */}
+      <main className={`flex-1 overflow-y-auto ${sidebarOpen ? 'ml-64' : 'ml-20'} transition-all duration-300`}>
         <header className="sticky top-0 z-30 bg-[#0f172a]/80 backdrop-blur-xl border-b border-white/5 px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-white/5">
@@ -299,30 +443,52 @@ function AdminDashboard() {
                   <StatCard label="Test phổ biến nhất" value={topTest} icon="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" color="bg-purple-500/20 text-purple-400" />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                   {/* Line: Daily registrations */}
                   <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
                     <h3 className="font-be-vietnam font-bold text-white mb-6">Đăng ký theo ngày (30 ngày)</h3>
                     <ResponsiveContainer width="100%" height={250}>
                       <LineChart data={dailyRegistrations}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                        <XAxis dataKey="date" stroke="#64748b" fontSize={10} interval="preserveStartEnd" />
-                        <YAxis stroke="#64748b" fontSize={12} allowDecimals={false} />
-                        <Tooltip contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '12px', color: '#fff', fontFamily: 'Be Vietnam Pro' }} />
+                        <XAxis dataKey="date" stroke="#64748b" fontSize={10} interval="preserveStartEnd" tick={{ fontFamily: 'Be Vietnam Pro' }} />
+                        <YAxis stroke="#64748b" fontSize={11} allowDecimals={false} tick={{ fontFamily: 'Be Vietnam Pro' }} />
+                        <Tooltip contentStyle={TOOLTIP_STYLE} />
                         <Line type="monotone" dataKey="count" stroke="#f59e0b" strokeWidth={2} dot={false} name="Lượt đăng ký" />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
 
+                  {/* Issue 7: Xu hướng test theo ngày - moved from analytics to overview */}
+                  <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
+                    <h3 className="font-be-vietnam font-bold text-white mb-6">Xu hướng test theo ngày (30 ngày)</h3>
+                    <ResponsiveContainer width="100%" height={250}>
+                      <AreaChart data={dailyTests}>
+                        <defs>
+                          <linearGradient id="colorTests" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                        <XAxis dataKey="date" stroke="#64748b" fontSize={10} interval="preserveStartEnd" tick={{ fontFamily: 'Be Vietnam Pro' }} />
+                        <YAxis stroke="#64748b" fontSize={11} allowDecimals={false} tick={{ fontFamily: 'Be Vietnam Pro' }} />
+                        <Tooltip contentStyle={TOOLTIP_STYLE} />
+                        <Area type="monotone" dataKey="count" stroke="#10b981" fill="url(#colorTests)" strokeWidth={2} name="Lượt test" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {/* Bar: Province distribution */}
                   <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
                     <h3 className="font-be-vietnam font-bold text-white mb-6">Top 10 Tỉnh/Thành phố</h3>
-                    <ResponsiveContainer width="100%" height={250}>
-                      <BarChart data={provinceData} layout="vertical">
+                    <ResponsiveContainer width="100%" height={280}>
+                      <BarChart data={provinceData} layout="vertical" margin={{ left: 10 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                        <XAxis type="number" stroke="#64748b" fontSize={12} allowDecimals={false} />
-                        <YAxis dataKey="name" type="category" stroke="#64748b" fontSize={10} width={100} />
-                        <Tooltip contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '12px', color: '#fff', fontFamily: 'Be Vietnam Pro' }} />
+                        <XAxis type="number" stroke="#64748b" fontSize={11} allowDecimals={false} tick={{ fontFamily: 'Be Vietnam Pro' }} />
+                        <YAxis dataKey="name" type="category" stroke="#94a3b8" fontSize={11} width={110} tick={{ fontFamily: 'Be Vietnam Pro' }} />
+                        <Tooltip contentStyle={TOOLTIP_STYLE} />
                         <Bar dataKey="value" fill="#6366f1" radius={[0, 8, 8, 0]} name="Số người" />
                       </BarChart>
                     </ResponsiveContainer>
@@ -331,12 +497,15 @@ function AdminDashboard() {
                   {/* Pie: Role distribution */}
                   <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
                     <h3 className="font-be-vietnam font-bold text-white mb-6">Phân bố vai trò</h3>
-                    <ResponsiveContainer width="100%" height={250}>
+                    <ResponsiveContainer width="100%" height={280}>
                       <PieChart>
-                        <Pie data={roleData} cx="50%" cy="50%" innerRadius={50} outerRadius={90} paddingAngle={4} dataKey="value" label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}>
+                        <Pie data={roleData} cx="50%" cy="50%" innerRadius={55} outerRadius={95} paddingAngle={4} dataKey="value"
+                          label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                          labelLine={{ stroke: '#64748b' }}
+                        >
                           {roleData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                         </Pie>
-                        <Tooltip contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '12px', color: '#fff', fontFamily: 'Be Vietnam Pro' }} />
+                        <Tooltip contentStyle={TOOLTIP_STYLE} />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
@@ -398,7 +567,7 @@ function AdminDashboard() {
               </motion.div>
             )}
 
-            {/* ===== TAB: RESULTS ===== */}
+            {/* ===== TAB: RESULTS (Issue 2 + 3) ===== */}
             {activeTab === 'results' && (
               <motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 <div className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
@@ -406,79 +575,112 @@ function AdminDashboard() {
                     <table className="w-full text-left">
                       <thead>
                         <tr className="border-b border-white/10">
-                          {['#', 'Tests', 'Holland', 'MBTI', 'DISC', 'Ngày làm', ''].map(h => (
+                          {['#', 'Người dùng', 'Tests', 'Holland', 'MBTI', 'DISC', 'Ngày làm', ''].map(h => (
                             <th key={h} className="px-5 py-4 text-slate-400 font-be-vietnam text-xs uppercase tracking-wider font-bold">{h}</th>
                           ))}
                         </tr>
                       </thead>
                       <tbody>
-                        {results.slice(0, 50).map((r, idx) => (
-                          <React.Fragment key={r.id}>
-                            <tr className="border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer" onClick={() => setExpandedResult(expandedResult === r.id ? null : r.id)}>
-                              <td className="px-5 py-3.5 text-slate-500 font-be-vietnam text-xs">#{idx + 1}</td>
-                              <td className="px-5 py-3.5">
-                                <div className="flex gap-1.5">
-                                  {(r.testsCompleted || []).map(t => (
-                                    <span key={t} className="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-lg text-[10px] font-black font-be-vietnam uppercase">{t}</span>
-                                  ))}
-                                </div>
-                              </td>
-                              <td className="px-5 py-3.5 text-white font-be-vietnam text-sm font-bold">{r.holland?.code || '—'}</td>
-                              <td className="px-5 py-3.5 text-white font-be-vietnam text-sm font-bold">{r.mbti?.type || '—'}</td>
-                              <td className="px-5 py-3.5 text-white font-be-vietnam text-sm font-bold">{r.disc?.dominant || '—'}</td>
-                              <td className="px-5 py-3.5 text-slate-500 font-be-vietnam text-xs">{formatDate(r.createdAt)}</td>
-                              <td className="px-5 py-3.5 flex gap-2">
-                                <button onClick={(e) => { e.stopPropagation(); handleDeleteResult(r.id); }} className="text-red-400/60 hover:text-red-400 transition-colors">
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                </button>
-                              </td>
-                            </tr>
-                            {expandedResult === r.id && (
-                              <tr>
-                                <td colSpan={7} className="px-5 py-4 bg-white/[0.02]">
-                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-be-vietnam">
-                                    {r.holland?.percentages && (
-                                      <div className="bg-white/5 rounded-xl p-4">
-                                        <h4 className="text-amber-500 font-bold mb-2">Holland Scores</h4>
-                                        {Object.entries(r.holland.percentages).map(([k, v]) => (
-                                          <div key={k} className="flex justify-between text-slate-300 mb-1">
-                                            <span>{k}</span><span className="font-bold">{v}%</span>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    )}
-                                    {r.mbti?.percentages && (
-                                      <div className="bg-white/5 rounded-xl p-4">
-                                        <h4 className="text-purple-400 font-bold mb-2">MBTI Scores</h4>
-                                        {Object.entries(r.mbti.percentages).map(([k, v]) => (
-                                          <div key={k} className="flex justify-between text-slate-300 mb-1">
-                                            <span>{k}</span><span className="font-bold">{v}%</span>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    )}
-                                    {r.disc?.percentages && (
-                                      <div className="bg-white/5 rounded-xl p-4">
-                                        <h4 className="text-emerald-400 font-bold mb-2">DISC Scores</h4>
-                                        {Object.entries(r.disc.percentages).map(([k, v]) => (
-                                          <div key={k} className="flex justify-between text-slate-300 mb-1">
-                                            <span>{k}</span><span className="font-bold">{v}%</span>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </div>
-                                  {r.aiAnalysis && (
-                                    <div className="mt-4 bg-white/5 rounded-xl p-4">
-                                      <h4 className="text-amber-500 font-bold font-be-vietnam text-xs mb-2">AI Analysis</h4>
-                                      <p className="text-slate-300 text-xs font-be-vietnam whitespace-pre-wrap leading-relaxed max-h-40 overflow-y-auto">{r.aiAnalysis}</p>
+                        {results.slice(0, 50).map((r, idx) => {
+                          const linkedUser = getUserForResult(r);
+                          return (
+                            <React.Fragment key={r.id}>
+                              <tr className="border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer" onClick={() => setExpandedResult(expandedResult === r.id ? null : r.id)}>
+                                <td className="px-5 py-3.5 text-slate-500 font-be-vietnam text-xs">#{idx + 1}</td>
+                                {/* Issue 3: Show linked user */}
+                                <td className="px-5 py-3.5">
+                                  {linkedUser ? (
+                                    <div>
+                                      <span className="text-white font-be-vietnam text-sm font-medium">{linkedUser.name}</span>
+                                      <span className="block text-slate-500 font-be-vietnam text-[10px]">{linkedUser.phone}</span>
                                     </div>
+                                  ) : (
+                                    <span className="text-slate-600 font-be-vietnam text-xs italic">Ẩn danh</span>
                                   )}
                                 </td>
+                                <td className="px-5 py-3.5">
+                                  <div className="flex gap-1.5">
+                                    {(r.testsCompleted || []).map(t => (
+                                      <span key={t} className="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-lg text-[10px] font-black font-be-vietnam uppercase">{t}</span>
+                                    ))}
+                                  </div>
+                                </td>
+                                <td className="px-5 py-3.5 text-white font-be-vietnam text-sm font-bold">{r.holland?.code || '—'}</td>
+                                <td className="px-5 py-3.5 text-white font-be-vietnam text-sm font-bold">{r.mbti?.type || '—'}</td>
+                                <td className="px-5 py-3.5 text-white font-be-vietnam text-sm font-bold">{r.disc?.dominant || '—'}</td>
+                                <td className="px-5 py-3.5 text-slate-500 font-be-vietnam text-xs">{formatDate(r.createdAt)}</td>
+                                <td className="px-5 py-3.5 flex gap-2">
+                                  <button onClick={(e) => { e.stopPropagation(); handleDeleteResult(r.id); }} className="text-red-400/60 hover:text-red-400 transition-colors">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                  </button>
+                                </td>
                               </tr>
-                            )}
-                          </React.Fragment>
-                        ))}
+                              {expandedResult === r.id && (
+                                <tr>
+                                  <td colSpan={8} className="px-5 py-4 bg-white/[0.02]">
+                                    {/* Issue 3: Show full user info */}
+                                    {linkedUser && (
+                                      <div className="bg-blue-500/10 rounded-xl p-4 mb-4 border border-blue-500/20">
+                                        <h4 className="text-blue-400 font-bold font-be-vietnam text-xs mb-2">👤 Thông tin người dùng</h4>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs font-be-vietnam">
+                                          <div><span className="text-slate-500">Họ tên:</span> <span className="text-white font-medium">{linkedUser.name}</span></div>
+                                          <div><span className="text-slate-500">SĐT:</span> <span className="text-slate-300">{linkedUser.phone}</span></div>
+                                          <div><span className="text-slate-500">Tỉnh:</span> <span className="text-slate-300">{linkedUser.province}</span></div>
+                                          <div><span className="text-slate-500">Vai trò:</span> <span className="text-slate-300">{linkedUser.role}</span></div>
+                                        </div>
+                                      </div>
+                                    )}
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-be-vietnam">
+                                      {r.holland?.percentages && (
+                                        <div className="bg-white/5 rounded-xl p-4">
+                                          <h4 className="text-amber-500 font-bold mb-2">Holland Scores</h4>
+                                          {Object.entries(r.holland.percentages).map(([k, v]) => (
+                                            <div key={k} className="flex justify-between text-slate-300 mb-1">
+                                              <span>{k}</span><span className="font-bold">{v}%</span>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      )}
+                                      {r.mbti?.percentages && (
+                                        <div className="bg-white/5 rounded-xl p-4">
+                                          <h4 className="text-indigo-400 font-bold mb-2">MBTI Scores</h4>
+                                          {Object.entries(r.mbti.percentages).map(([k, v]) => (
+                                            <div key={k} className="flex justify-between text-slate-300 mb-1">
+                                              <span>{k}</span><span className="font-bold">{v}%</span>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      )}
+                                      {r.disc?.percentages && (
+                                        <div className="bg-white/5 rounded-xl p-4">
+                                          <h4 className="text-emerald-400 font-bold mb-2">DISC Scores</h4>
+                                          {Object.entries(r.disc.percentages).map(([k, v]) => (
+                                            <div key={k} className="flex justify-between text-slate-300 mb-1">
+                                              <span>{k}</span><span className="font-bold">{v}%</span>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                    {/* Issue 2: Render AI Analysis with markdown */}
+                                    {r.aiAnalysis && (
+                                      <div className="mt-4 bg-white/5 rounded-xl p-4 border border-white/10">
+                                        <h4 className="text-amber-500 font-bold font-be-vietnam text-xs mb-3 flex items-center gap-2">
+                                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
+                                          AI Analysis
+                                        </h4>
+                                        <div
+                                          className="max-h-96 overflow-y-auto pr-2 scrollbar-thin"
+                                          dangerouslySetInnerHTML={{ __html: renderMarkdownDark(r.aiAnalysis) }}
+                                        />
+                                      </div>
+                                    )}
+                                  </td>
+                                </tr>
+                              )}
+                            </React.Fragment>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -486,81 +688,95 @@ function AdminDashboard() {
               </motion.div>
             )}
 
-            {/* ===== TAB: ANALYTICS ===== */}
+            {/* ===== TAB: ANALYTICS (Issue 1 + 5) ===== */}
             {activeTab === 'analytics' && (
               <motion.div key="analytics" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Radar: Holland average */}
+                  {/* Radar: Holland average (Issue 5) */}
                   <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-                    <h3 className="font-be-vietnam font-bold text-white mb-6">Holland RIASEC trung bình</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <RadarChart data={hollandAvg}>
-                        <PolarGrid stroke="#1e293b" />
-                        <PolarAngleAxis dataKey="subject" stroke="#94a3b8" fontSize={12} />
-                        <PolarRadiusAxis stroke="#334155" fontSize={10} />
-                        <Radar name="Trung bình %" dataKey="value" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.3} strokeWidth={2} />
-                        <Tooltip contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '12px', color: '#fff', fontFamily: 'Be Vietnam Pro' }} />
+                    <h3 className="font-be-vietnam font-bold text-white mb-6 text-base">Holland RIASEC trung bình</h3>
+                    <ResponsiveContainer width="100%" height={320}>
+                      <RadarChart data={hollandAvg} cx="50%" cy="50%" outerRadius="70%">
+                        <PolarGrid stroke="#334155" />
+                        <PolarAngleAxis dataKey="subject" stroke="#cbd5e1" fontSize={12} tick={{ fontFamily: 'Be Vietnam Pro', fill: '#cbd5e1' }} />
+                        <PolarRadiusAxis stroke="#334155" fontSize={10} tick={{ fontFamily: 'Be Vietnam Pro', fill: '#64748b' }} domain={[0, 100]} />
+                        <Radar name="Trung bình %" dataKey="value" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.25} strokeWidth={2} />
+                        <Tooltip contentStyle={TOOLTIP_STYLE} />
                       </RadarChart>
                     </ResponsiveContainer>
                   </div>
 
-                  {/* Bar: MBTI distribution */}
+                  {/* Bar: MBTI distribution (Issue 5) */}
                   <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-                    <h3 className="font-be-vietnam font-bold text-white mb-6">Top MBTI phổ biến</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={mbtiData}>
+                    <h3 className="font-be-vietnam font-bold text-white mb-6 text-base">Phân bố MBTI</h3>
+                    <ResponsiveContainer width="100%" height={320}>
+                      <BarChart data={mbtiData} margin={{ bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                        <XAxis dataKey="name" stroke="#64748b" fontSize={11} />
-                        <YAxis stroke="#64748b" fontSize={12} allowDecimals={false} />
-                        <Tooltip contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '12px', color: '#fff', fontFamily: 'Be Vietnam Pro' }} />
-                        <Bar dataKey="value" fill="#8b5cf6" radius={[8, 8, 0, 0]} name="Số lượt" />
+                        <XAxis dataKey="name" stroke="#cbd5e1" fontSize={12} tick={{ fontFamily: 'Be Vietnam Pro', fill: '#cbd5e1' }} interval={0} />
+                        <YAxis stroke="#64748b" fontSize={11} allowDecimals={false} tick={{ fontFamily: 'Be Vietnam Pro', fill: '#64748b' }} />
+                        <Tooltip contentStyle={TOOLTIP_STYLE} />
+                        <Bar dataKey="value" fill="#818cf8" radius={[8, 8, 0, 0]} name="Số lượt">
+                          {mbtiData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                        </Bar>
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
 
-                  {/* Pie: DISC */}
+                  {/* Pie: DISC (Issue 5) */}
                   <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-                    <h3 className="font-be-vietnam font-bold text-white mb-6">Phân bố DISC</h3>
-                    <ResponsiveContainer width="100%" height={300}>
+                    <h3 className="font-be-vietnam font-bold text-white mb-6 text-base">Phân bố DISC</h3>
+                    <ResponsiveContainer width="100%" height={320}>
                       <PieChart>
-                        <Pie data={discData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={4} dataKey="value" label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}>
+                        <Pie data={discData} cx="50%" cy="50%" innerRadius={65} outerRadius={105} paddingAngle={4} dataKey="value"
+                          label={({ name, percent, x, y }) => (
+                            <text x={x} y={y} textAnchor="middle" dominantBaseline="central" style={{ fontFamily: 'Be Vietnam Pro', fontSize: '12px', fill: '#e2e8f0', fontWeight: 600 }}>
+                              {`${name} (${(percent * 100).toFixed(0)}%)`}
+                            </text>
+                          )}
+                          labelLine={{ stroke: '#64748b', strokeWidth: 1 }}
+                        >
                           {discData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                         </Pie>
-                        <Tooltip contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '12px', color: '#fff', fontFamily: 'Be Vietnam Pro' }} />
+                        <Tooltip contentStyle={TOOLTIP_STYLE} />
+                        <Legend wrapperStyle={{ fontFamily: 'Be Vietnam Pro', fontSize: '12px', color: '#94a3b8' }} />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
 
-                  {/* Area: Tests over time */}
+                  {/* Issue 1: Career distribution from test results (Holland → Career) */}
                   <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-                    <h3 className="font-be-vietnam font-bold text-white mb-6">Xu hướng test theo ngày</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <AreaChart data={dailyTests}>
-                        <defs>
-                          <linearGradient id="colorTests" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                            <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                        <XAxis dataKey="date" stroke="#64748b" fontSize={10} interval="preserveStartEnd" />
-                        <YAxis stroke="#64748b" fontSize={12} allowDecimals={false} />
-                        <Tooltip contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '12px', color: '#fff', fontFamily: 'Be Vietnam Pro' }} />
-                        <Area type="monotone" dataKey="count" stroke="#10b981" fill="url(#colorTests)" strokeWidth={2} name="Lượt test" />
-                      </AreaChart>
+                    <h3 className="font-be-vietnam font-bold text-white mb-2 text-base">Xu hướng ngành nghề (từ kết quả test)</h3>
+                    <p className="text-slate-500 text-xs font-be-vietnam mb-6">Phân bổ theo mã Holland hàng đầu</p>
+                    <ResponsiveContainer width="100%" height={280}>
+                      <PieChart>
+                        <Pie data={careerFromTestData} cx="50%" cy="50%" innerRadius={50} outerRadius={95} paddingAngle={3} dataKey="value"
+                          label={({ name, percent, x, y }) => (
+                            <text x={x} y={y} textAnchor="middle" dominantBaseline="central" style={{ fontFamily: 'Be Vietnam Pro', fontSize: '11px', fill: '#e2e8f0', fontWeight: 500 }}>
+                              {`${name.split('/')[0].trim()} (${(percent * 100).toFixed(0)}%)`}
+                            </text>
+                          )}
+                          labelLine={{ stroke: '#64748b', strokeWidth: 1 }}
+                        >
+                          {careerFromTestData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                        </Pie>
+                        <Tooltip contentStyle={TOOLTIP_STYLE} />
+                      </PieChart>
                     </ResponsiveContainer>
                   </div>
 
-                  {/* Bar: Popular careers */}
+                  {/* Issue 8: Popular careers (normalized) */}
                   <div className="bg-white/5 rounded-2xl p-6 border border-white/10 lg:col-span-2">
-                    <h3 className="font-be-vietnam font-bold text-white mb-6">Ngành nghề được quan tâm nhiều nhất</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={careerData} layout="vertical">
+                    <h3 className="font-be-vietnam font-bold text-white mb-2 text-base">Ngành nghề được quan tâm nhiều nhất</h3>
+                    <p className="text-slate-500 text-xs font-be-vietnam mb-6">Dựa trên lựa chọn đăng ký của người dùng (đã gộp trùng)</p>
+                    <ResponsiveContainer width="100%" height={Math.max(300, careerData.length * 40)}>
+                      <BarChart data={careerData} layout="vertical" margin={{ left: 20, right: 20 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                        <XAxis type="number" stroke="#64748b" fontSize={12} allowDecimals={false} />
-                        <YAxis dataKey="name" type="category" stroke="#94a3b8" fontSize={11} width={180} />
-                        <Tooltip contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '12px', color: '#fff', fontFamily: 'Be Vietnam Pro' }} />
-                        <Bar dataKey="value" fill="#ec4899" radius={[0, 8, 8, 0]} name="Số lượt quan tâm" />
+                        <XAxis type="number" stroke="#64748b" fontSize={11} allowDecimals={false} tick={{ fontFamily: 'Be Vietnam Pro', fill: '#64748b' }} />
+                        <YAxis dataKey="name" type="category" stroke="#cbd5e1" fontSize={12} width={200} tick={{ fontFamily: 'Be Vietnam Pro', fill: '#cbd5e1' }} />
+                        <Tooltip contentStyle={TOOLTIP_STYLE} />
+                        <Bar dataKey="value" radius={[0, 8, 8, 0]} name="Số lượt quan tâm">
+                          {careerData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                        </Bar>
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -568,7 +784,7 @@ function AdminDashboard() {
               </motion.div>
             )}
 
-            {/* ===== TAB: EXPORT ===== */}
+            {/* ===== TAB: EXPORT (Issue 6) ===== */}
             {activeTab === 'export' && (
               <motion.div key="export" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl">
@@ -581,15 +797,16 @@ function AdminDashboard() {
                     <h3 className="font-be-vietnam font-black text-white text-lg mb-2">Danh sách Users</h3>
                     <p className="text-slate-400 font-be-vietnam text-sm mb-6">{users.length} bản ghi</p>
                     <button
-                      onClick={() => exportToCSV(users.map(u => ({
+                      onClick={() => exportToExcel(users.map(u => ({
                         'Họ tên': u.name, 'SĐT': u.phone, 'Tỉnh/TP': u.province,
                         'Vai trò': u.role, 'Trường': u.school, 'Năm sinh': u.birthYear,
                         'Ngành quan tâm': (u.careers || []).join('; '),
                         'Ngày ĐK': formatDate(u.createdAt)
                       })), 'users')}
-                      className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-be-vietnam font-bold rounded-xl transition-all active:scale-95"
+                      className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-be-vietnam font-bold rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2"
                     >
-                      Tải xuống CSV
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                      Tải xuống Excel (.xlsx)
                     </button>
                   </div>
 
@@ -602,19 +819,25 @@ function AdminDashboard() {
                     <h3 className="font-be-vietnam font-black text-white text-lg mb-2">Kết quả Test</h3>
                     <p className="text-slate-400 font-be-vietnam text-sm mb-6">{results.length} bản ghi</p>
                     <button
-                      onClick={() => exportToCSV(results.map(r => ({
-                        'Tests': (r.testsCompleted || []).join(', '),
-                        'Holland Code': r.holland?.code || '',
-                        'MBTI Type': r.mbti?.type || '',
-                        'DISC Dominant': r.disc?.dominant || '',
-                        'Holland Scores': r.holland?.percentages ? JSON.stringify(r.holland.percentages) : '',
-                        'MBTI Scores': r.mbti?.percentages ? JSON.stringify(r.mbti.percentages) : '',
-                        'DISC Scores': r.disc?.percentages ? JSON.stringify(r.disc.percentages) : '',
-                        'Ngày làm': formatDate(r.createdAt)
-                      })), 'test_results')}
-                      className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-900 font-be-vietnam font-bold rounded-xl transition-all active:scale-95"
+                      onClick={() => exportToExcel(results.map(r => {
+                        const lu = getUserForResult(r);
+                        return {
+                          'Người dùng': lu?.name || 'Ẩn danh',
+                          'SĐT': lu?.phone || '',
+                          'Tests': (r.testsCompleted || []).join(', '),
+                          'Holland Code': r.holland?.code || '',
+                          'MBTI Type': r.mbti?.type || '',
+                          'DISC Dominant': r.disc?.dominant || '',
+                          'Holland Scores': r.holland?.percentages ? Object.entries(r.holland.percentages).map(([k,v]) => `${k}:${v}%`).join(', ') : '',
+                          'MBTI Scores': r.mbti?.percentages ? Object.entries(r.mbti.percentages).map(([k,v]) => `${k}:${v}%`).join(', ') : '',
+                          'DISC Scores': r.disc?.percentages ? Object.entries(r.disc.percentages).map(([k,v]) => `${k}:${v}%`).join(', ') : '',
+                          'Ngày làm': formatDate(r.createdAt)
+                        };
+                      }), 'test_results')}
+                      className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-900 font-be-vietnam font-bold rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2"
                     >
-                      Tải xuống CSV
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                      Tải xuống Excel (.xlsx)
                     </button>
                   </div>
                 </div>

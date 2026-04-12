@@ -1,5 +1,6 @@
 import { collection, getDocs, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
 import { db } from './firebase';
+import * as XLSX from 'xlsx';
 
 export async function fetchAllUsers() {
   const q = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
@@ -21,33 +22,37 @@ export async function deleteTestResult(docId) {
   await deleteDoc(doc(db, 'test_results', docId));
 }
 
-export function exportToCSV(data, filename) {
+export function exportToExcel(data, filename) {
   if (!data.length) return;
-  const headers = Object.keys(data[0]);
-  const csvRows = [
-    headers.join(','),
-    ...data.map(row =>
-      headers.map(h => {
-        let val = row[h];
-        if (val && typeof val === 'object') {
-          if (val.seconds) {
-            val = new Date(val.seconds * 1000).toLocaleString('vi-VN');
-          } else {
-            val = JSON.stringify(val);
-          }
-        }
-        if (val === null || val === undefined) val = '';
-        const str = String(val).replace(/"/g, '""');
-        return `"${str}"`;
-      }).join(',')
-    )
-  ];
-  const csvString = '\uFEFF' + csvRows.join('\n');
-  const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `${filename}_${new Date().toISOString().slice(0, 10)}.csv`;
-  link.click();
-  URL.revokeObjectURL(url);
+
+  const ws = XLSX.utils.json_to_sheet(data);
+
+  // Auto-fit column widths
+  const colWidths = Object.keys(data[0]).map(key => {
+    const maxLen = Math.max(
+      key.length,
+      ...data.map(row => {
+        const val = row[key];
+        return val ? String(val).length : 0;
+      })
+    );
+    return { wch: Math.min(Math.max(maxLen + 2, 10), 50) };
+  });
+  ws['!cols'] = colWidths;
+
+  // Style header row (bold + background)
+  const range = XLSX.utils.decode_range(ws['!ref']);
+  for (let C = range.s.c; C <= range.e.c; C++) {
+    const addr = XLSX.utils.encode_cell({ r: 0, c: C });
+    if (!ws[addr]) continue;
+    ws[addr].s = {
+      font: { bold: true, color: { rgb: 'FFFFFF' } },
+      fill: { fgColor: { rgb: '334155' } },
+      alignment: { horizontal: 'center' }
+    };
+  }
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Dữ liệu');
+  XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0, 10)}.xlsx`);
 }
