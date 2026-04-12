@@ -393,9 +393,9 @@ function HomePage() {
             className="text-center mb-16"
           >
             <h2 className="font-be-vietnam font-black text-3xl sm:text-4xl text-slate-900 mb-4">
-              Cảm nhận từ các bạn học sinh
+              Cảm nhận từ người dùng
             </h2>
-            <p className="text-slate-500 font-be-vietnam">Sản phẩm tin cậy bởi học sinh chuyên trên toàn quốc</p>
+            <p className="text-slate-500 font-be-vietnam">Sản phẩm được tin chọn bởi Học sinh, Phụ huynh và Thầy Cô trên toàn quốc</p>
           </motion.div>
         </div>
 
