@@ -574,7 +574,7 @@ function AdminDashboard() {
                     <table className="w-full text-left">
                       <thead>
                         <tr className="border-b border-white/10">
-                          {['Họ tên', 'SĐT', 'Tỉnh/TP', 'Vai trò', 'Trường', 'Ngày ĐK', ''].map(h => (
+                          {['Họ tên', 'SĐT', 'Tỉnh/TP', 'Vai trò', 'Năm sinh', 'Trường', 'Ngày ĐK', ''].map(h => (
                             <th key={h} className="px-5 py-4 text-slate-400 font-be-vietnam text-xs uppercase tracking-wider font-bold">{h}</th>
                           ))}
                         </tr>
@@ -586,6 +586,7 @@ function AdminDashboard() {
                             <td className="px-5 py-3.5 text-slate-300 font-be-vietnam text-sm">{u.phone || '—'}</td>
                             <td className="px-5 py-3.5 text-slate-300 font-be-vietnam text-sm">{(u.province || '').replace('Thành phố ', 'TP ').replace('Tỉnh ', '')}</td>
                             <td className="px-5 py-3.5"><span className="bg-indigo-500/20 text-indigo-400 px-2.5 py-1 rounded-lg text-xs font-bold font-be-vietnam">{u.role || '—'}</span></td>
+                            <td className="px-5 py-3.5 text-slate-300 font-be-vietnam text-sm">{u.birthYear || '—'}</td>
                             <td className="px-5 py-3.5 text-slate-300 font-be-vietnam text-sm">{u.school || '—'}</td>
                             <td className="px-5 py-3.5 text-slate-500 font-be-vietnam text-xs">{formatDate(u.createdAt)}</td>
                             <td className="px-5 py-3.5">
@@ -632,7 +633,7 @@ function AdminDashboard() {
                                   {linkedUser ? (
                                     <div>
                                       <span className="text-white font-be-vietnam text-sm font-medium">{linkedUser.name}</span>
-                                      <span className="block text-slate-500 font-be-vietnam text-[10px]">{linkedUser.phone}</span>
+                                      <span className="block text-slate-500 font-be-vietnam text-[10px]">{linkedUser.phone} · {linkedUser.birthYear || '?'} · {linkedUser.school || '—'}</span>
                                     </div>
                                   ) : (
                                     <span className="text-slate-600 font-be-vietnam text-xs italic">Ẩn danh</span>

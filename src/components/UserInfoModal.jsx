@@ -70,9 +70,11 @@ function UserInfoModal({ onSubmit }) {
     if (!phone.trim()) newErrors.phone = 'Vui lòng nhập số điện thoại';
     else if (!/^0[0-9]{9}$/.test(phone.trim())) newErrors.phone = 'Số điện thoại phải gồm 10 số, bắt đầu bằng số 0';
     if (!province) newErrors.province = 'Vui lòng chọn Tỉnh/Thành phố';
-    if (birthYear && (isNaN(birthYear) || birthYear < 2000 || birthYear > 2020)) {
+    if (!birthYear) newErrors.birthYear = 'Vui lòng nhập năm sinh';
+    else if (isNaN(birthYear) || birthYear < 2000 || birthYear > 2020) {
       newErrors.birthYear = 'Năm sinh phải từ 2000 đến 2020';
     }
+    if (!school.trim()) newErrors.school = 'Vui lòng nhập trường/đơn vị';
     if (!careers.trim()) newErrors.careers = 'Vui lòng nhập ngành nghề quan tâm';
     if (!acceptedPrivacy) newErrors.privacy = 'Vui lòng đồng ý với chính sách bảo mật';
     
