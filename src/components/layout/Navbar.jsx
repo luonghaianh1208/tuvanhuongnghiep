@@ -56,6 +56,14 @@ function Navbar() {
             >
               Kết quả của tôi
             </Link>
+            <Link
+              to="/academic-disclaimer"
+              className={`font-be-vietnam font-medium text-sm lg:text-base transition-colors duration-200 ${
+                isActive('/academic-disclaimer') ? 'text-gold' : 'hover:text-gold'
+              }`}
+            >
+              Tuyên bố học thuật
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -111,6 +119,15 @@ function Navbar() {
               }`}
             >
               📊 Kết quả của tôi
+            </Link>
+            <Link
+              to="/academic-disclaimer"
+              onClick={handleLinkClick}
+              className={`block px-3 py-2.5 rounded-lg font-be-vietnam font-medium text-sm transition-colors ${
+                isActive('/academic-disclaimer') ? 'text-gold bg-navy-dark' : 'hover:text-gold hover:bg-navy-dark/50'
+              }`}
+            >
+              📚 Tuyên bố học thuật
             </Link>
           </div>
         </div>
