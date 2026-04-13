@@ -73,6 +73,11 @@ function Footer() {
                   <span className="text-gold/60">→</span> Kết quả của tôi
                 </Link>
               </li>
+              <li>
+                <Link to="/academic-disclaimer" className="font-be-vietnam text-gray-300 hover:text-white text-xs sm:text-sm transition-colors inline-flex items-center gap-1.5">
+                  <span className="text-gold/60">→</span> Tuyên bố học thuật
+                </Link>
+              </li>
             </ul>
           </div>
 

@@ -10,6 +10,7 @@ const QuizPage = lazy(() => import('./pages/QuizPage'));
 const ResultPage = lazy(() => import('./pages/ResultPage'));
 const HistoryPage = lazy(() => import('./pages/HistoryPage'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const AcademicDisclaimer = lazy(() => import('./pages/AcademicDisclaimer'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 import AdminRoute from './components/AdminRoute';
 import { AdminAuthProvider } from './lib/AdminAuthContext';
@@ -63,6 +64,7 @@ function AppLayout() {
             <Route path="/result" element={<ResultPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/academic-disclaimer" element={<AcademicDisclaimer />} />
           </Routes>
         </Suspense>
       </main>

@@ -24,6 +24,16 @@ const CHANGELOG_ITEMS = [
       'Nếu ngành bạn chọn chưa phù hợp, AI sẽ gợi ý ngành thay thế gần nhất cùng hành động cụ thể cần làm.',
       'Bài phân tích AI mở rộng lên 7 mục chuyên sâu, bổ sung phần "Đánh giá ngành nghề đã chọn" với triển vọng 5-10 năm tại Việt Nam.'
     ]
+  },
+  {
+    type: 'feature',
+    icon: '📚',
+    title: 'TIỆN ÍCH',
+    color: 'text-teal-700',
+    bg: 'bg-teal-50',
+    items: [
+      'Thêm trang Tuyên bố học thuật với đầy đủ trích dẫn APA cho cả 3 bộ trắc nghiệm Holland, MBTI, DISC.'
+    ]
   }
 ];
 
