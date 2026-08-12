@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-const SCHOOL_LOGO = 'https://doantruong.chuyennguyentrai.edu.vn/wp-content/uploads/2026/02/Logo-CNT.png';
-const DOAN_LOGO = 'https://doantruong.chuyennguyentrai.edu.vn/wp-content/uploads/2025/12/Huy_Hieu_Doan.png';
+const SCHOOL_LOGO = '/logo-cnt.png';
+const DOAN_LOGO = '/huy-hieu-doan.png';
 
 const MOCK_REVIEWS = [
   // 4 Học sinh (HS)
