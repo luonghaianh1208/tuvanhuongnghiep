@@ -17,12 +17,12 @@ function Footer() {
               <img
                 src={SCHOOL_LOGO}
                 alt="Logo Trường THPT Chuyên Nguyễn Trãi"
-                className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover bg-white p-0.5 shadow-lg flex-shrink-0"
+                className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-contain bg-white p-1 shadow-lg flex-shrink-0"
               />
               <img
                 src={DOAN_LOGO}
                 alt="Huy hiệu Đoàn TNCS Hồ Chí Minh"
-                className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover bg-white p-0.5 shadow-lg flex-shrink-0"
+                className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-contain bg-white p-1 shadow-lg flex-shrink-0"
               />
               <div className="min-w-0">
                 <h3 className="font-be-vietnam font-bold text-sm sm:text-base lg:text-lg text-gold leading-tight">

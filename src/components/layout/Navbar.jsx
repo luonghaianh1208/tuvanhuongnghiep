@@ -22,7 +22,7 @@ function Navbar() {
             <img
               src={SCHOOL_LOGO}
               alt="Logo Trường THPT Chuyên Nguyễn Trãi"
-              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover bg-white p-0.5 shadow-md"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl object-contain bg-white p-0.5 shadow-md"
             />
             <div className="flex flex-col leading-tight">
               <span className="font-be-vietnam font-bold text-sm sm:text-base lg:text-lg">Hướng Nghiệp</span>

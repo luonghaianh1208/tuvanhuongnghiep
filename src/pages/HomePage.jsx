@@ -134,19 +134,19 @@ function HomePage() {
             {/* Logos */}
             <motion.div variants={fadeInUp} className="flex items-center justify-center gap-4 mb-8">
               <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
                 <img
                   src={SCHOOL_LOGO}
                   alt="Logo Trường THPT Chuyên Nguyễn Trãi"
-                  className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover bg-white p-1 shadow-2xl"
+                  className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-contain bg-white p-1.5 shadow-2xl"
                 />
               </div>
               <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-red-500 to-orange-500 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
                 <img
                   src={DOAN_LOGO}
                   alt="Huy hiệu Đoàn TNCS Hồ Chí Minh"
-                  className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover bg-white p-1 shadow-2xl"
+                  className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-contain bg-white p-1.5 shadow-2xl"
                 />
               </div>
             </motion.div>
