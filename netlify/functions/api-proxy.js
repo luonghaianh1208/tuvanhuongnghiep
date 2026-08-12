@@ -17,7 +17,7 @@ function isRateLimited(ip) {
   return false;
 }
 
-exports.handler = async function(event, context) {
+export const handler = async function(event, context) {
   // Chỉ nhận POST
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: JSON.stringify({ error: 'Method Not Allowed' }) };
