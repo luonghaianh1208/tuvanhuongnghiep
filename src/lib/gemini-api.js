@@ -27,7 +27,12 @@ export async function callGeminiAPI(prompt, retryCount = 1) {
           temperature: 0.7,
           maxOutputTokens: 8192,
           topP: 0.9,
-          topK: 40
+          topK: 40,
+          // Tắt thinking: token suy luận bị tính vào maxOutputTokens và
+          // làm vượt giới hạn 10s của Netlify Function
+          thinkingConfig: {
+            thinkingBudget: 0
+          }
         }
       }),
       signal: controller.signal

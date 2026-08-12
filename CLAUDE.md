@@ -35,7 +35,7 @@ Copy `.env.example` to `.env` and fill in values:
 
 ### Gemini API Flow
 
-The frontend (`src/lib/gemini-api.js`) does NOT call Gemini directly. It posts to `/.netlify/functions/api-proxy`, a Netlify Function (`netlify/functions/api-proxy.js`) that appends the API key server-side and proxies to `gemini-2.0-flash:generateContent`. Client-side caches responses in `sessionStorage` with a hash key.
+The frontend (`src/lib/gemini-api.js`) does NOT call Gemini directly. It posts to `/.netlify/functions/api-proxy`, a Netlify Function (`netlify/functions/api-proxy.js`) that appends the API key server-side and proxies to `gemini-2.5-flash:generateContent`. Client-side caches responses in `sessionStorage` with a hash key.
 
 ### Test Flow
 
