@@ -143,7 +143,7 @@ function StatCard({ label, value, icon, color }) {
 }
 
 function AdminDashboard() {
-  const { user, logout } = useAdminAuth();
+  const { user, logout, canDelete } = useAdminAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [users, setUsers] = useState([]);
   const [results, setResults] = useState([]);
@@ -363,12 +363,14 @@ function AdminDashboard() {
   }, [provinceData]);
 
   async function handleDeleteUser(id) {
+    if (!canDelete) return;
     if (!confirm('Bạn có chắc muốn xóa người dùng này?')) return;
     await deleteUser(id);
     setUsers(prev => prev.filter(u => u.id !== id));
   }
 
   async function handleDeleteResult(id) {
+    if (!canDelete) return;
     if (!confirm('Bạn có chắc muốn xóa kết quả test này?')) return;
     await deleteTestResult(id);
     setResults(prev => prev.filter(r => r.id !== id));
@@ -438,6 +440,9 @@ function AdminDashboard() {
               <div className="min-w-0">
                 <p className="text-white text-xs font-bold truncate">{user?.displayName}</p>
                 <p className="text-slate-500 text-[10px] truncate">{user?.email}</p>
+                <span className={`inline-block mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold font-be-vietnam ${canDelete ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-500/20 text-slate-400'}`}>
+                  {canDelete ? 'Toàn quyền' : 'Chỉ xem'}
+                </span>
               </div>
             </div>
           )}
@@ -574,7 +579,7 @@ function AdminDashboard() {
                     <table className="w-full text-left">
                       <thead>
                         <tr className="border-b border-white/10">
-                          {['Họ tên', 'SĐT', 'Tỉnh/TP', 'Vai trò', 'Năm sinh', 'Trường', 'Ngày ĐK', ''].map(h => (
+                          {['Họ tên', 'SĐT', 'Tỉnh/TP', 'Vai trò', 'Năm sinh', 'Trường', 'Ngày ĐK', ...(canDelete ? [''] : [])].map(h => (
                             <th key={h} className="px-5 py-4 text-slate-400 font-be-vietnam text-xs uppercase tracking-wider font-bold">{h}</th>
                           ))}
                         </tr>
@@ -589,11 +594,13 @@ function AdminDashboard() {
                             <td className="px-5 py-3.5 text-slate-300 font-be-vietnam text-sm">{u.birthYear || '—'}</td>
                             <td className="px-5 py-3.5 text-slate-300 font-be-vietnam text-sm">{u.school || '—'}</td>
                             <td className="px-5 py-3.5 text-slate-500 font-be-vietnam text-xs">{formatDate(u.createdAt)}</td>
-                            <td className="px-5 py-3.5">
-                              <button onClick={() => handleDeleteUser(u.id)} className="text-red-400/60 hover:text-red-400 transition-colors">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                              </button>
-                            </td>
+                            {canDelete && (
+                              <td className="px-5 py-3.5">
+                                <button onClick={() => handleDeleteUser(u.id)} className="text-red-400/60 hover:text-red-400 transition-colors">
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                </button>
+                              </td>
+                            )}
                           </tr>
                         ))}
                       </tbody>
@@ -616,7 +623,7 @@ function AdminDashboard() {
                     <table className="w-full text-left">
                       <thead>
                         <tr className="border-b border-white/10">
-                          {['#', 'Người dùng', 'Tests', 'Holland', 'MBTI', 'DISC', 'Ngày làm', ''].map(h => (
+                          {['#', 'Người dùng', 'Tests', 'Holland', 'MBTI', 'DISC', 'Ngày làm', ...(canDelete ? [''] : [])].map(h => (
                             <th key={h} className="px-5 py-4 text-slate-400 font-be-vietnam text-xs uppercase tracking-wider font-bold">{h}</th>
                           ))}
                         </tr>
@@ -650,15 +657,17 @@ function AdminDashboard() {
                                 <td className="px-5 py-3.5 text-white font-be-vietnam text-sm font-bold">{r.mbti?.type || '—'}</td>
                                 <td className="px-5 py-3.5 text-white font-be-vietnam text-sm font-bold">{r.disc?.dominant || '—'}</td>
                                 <td className="px-5 py-3.5 text-slate-500 font-be-vietnam text-xs">{formatDate(r.createdAt)}</td>
-                                <td className="px-5 py-3.5 flex gap-2">
-                                  <button onClick={(e) => { e.stopPropagation(); handleDeleteResult(r.id); }} className="text-red-400/60 hover:text-red-400 transition-colors">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                  </button>
-                                </td>
+                                {canDelete && (
+                                  <td className="px-5 py-3.5 flex gap-2">
+                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteResult(r.id); }} className="text-red-400/60 hover:text-red-400 transition-colors">
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                    </button>
+                                  </td>
+                                )}
                               </tr>
                               {expandedResult === r.id && (
                                 <tr>
-                                  <td colSpan={8} className="px-5 py-4 bg-white/[0.02]">
+                                  <td colSpan={canDelete ? 8 : 7} className="px-5 py-4 bg-white/[0.02]">
                                     {/* Issue 3: Show full user info */}
                                     {linkedUser && (
                                       <div className="bg-blue-500/10 rounded-xl p-4 mb-4 border border-blue-500/20">

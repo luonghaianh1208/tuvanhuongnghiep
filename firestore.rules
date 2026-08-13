@@ -1,0 +1,56 @@
+rules_version = '2';
+
+// Phân quyền thật sự cho dữ liệu. Kiểm tra trong React chỉ ẩn nút bấm —
+// ai cũng có thể gọi thẳng Firebase SDK từ trình duyệt, nên quyền phải
+// được chặn ở đây thì mới có hiệu lực.
+//
+// Triển khai: Firebase Console > Firestore Database > Rules > dán file này > Publish
+// Hoặc: firebase deploy --only firestore:rules
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Email đã đăng nhập, viết thường. Trả '' nếu chưa đăng nhập hoặc
+    // email chưa xác minh -> mọi so sánh bên dưới đều thất bại (fail closed).
+    function email() {
+      return request.auth != null && request.auth.token.email_verified == true
+        ? request.auth.token.email.lower()
+        : '';
+    }
+
+    // Toàn quyền: xem và xoá
+    function isOwner() {
+      return email() == 'luonghaianh1208@gmail.com';
+    }
+
+    // Chỉ xem, không xoá
+    function isViewer() {
+      return email() == 'phamhoangson162@gmail.com';
+    }
+
+    function isAdmin() {
+      return isOwner() || isViewer();
+    }
+
+    // Học sinh chưa đăng nhập vẫn phải gửi được bài làm, nên create mở.
+    // Nhưng đọc lại toàn bộ dữ liệu thì chỉ admin, và xoá thì chỉ owner.
+    match /users/{docId} {
+      allow create: if true;
+      allow read:   if isAdmin();
+      allow delete: if isOwner();
+      allow update: if false;
+    }
+
+    match /test_results/{docId} {
+      allow create: if true;
+      allow read:   if isAdmin();
+      allow delete: if isOwner();
+      allow update: if false;
+    }
+
+    // Mọi collection khác: cấm hoàn toàn
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

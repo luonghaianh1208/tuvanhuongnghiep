@@ -4,26 +4,48 @@ import { auth } from './firebase';
 
 const AdminAuthContext = createContext(null);
 const googleProvider = new GoogleAuthProvider();
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
+
+const normalize = (email) => (email || '').trim().toLowerCase();
+
+// Toàn quyền: xem, xuất Excel, xoá
+const OWNER_EMAIL = normalize(import.meta.env.VITE_ADMIN_EMAIL);
+// Chỉ xem và xuất Excel, không xoá. Nhiều email cách nhau bởi dấu phẩy.
+const VIEWER_EMAILS = (import.meta.env.VITE_ADMIN_VIEWER_EMAILS || '')
+  .split(',')
+  .map(normalize)
+  .filter(Boolean);
+
+function getRole(email) {
+  const e = normalize(email);
+  if (!e) return null;
+  if (e === OWNER_EMAIL) return 'owner';
+  if (VIEWER_EMAILS.includes(e)) return 'viewer';
+  return null;
+}
 
 export function AdminAuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        if (firebaseUser.email === ADMIN_EMAIL) {
+        const nextRole = getRole(firebaseUser.email);
+        if (nextRole) {
           setUser(firebaseUser);
+          setRole(nextRole);
           setError(null);
         } else {
           setError(`Email ${firebaseUser.email} không có quyền truy cập.`);
           signOut(auth);
           setUser(null);
+          setRole(null);
         }
       } else {
         setUser(null);
+        setRole(null);
       }
       setLoading(false);
     });
@@ -44,10 +66,11 @@ export function AdminAuthProvider({ children }) {
   const logout = async () => {
     await signOut(auth);
     setUser(null);
+    setRole(null);
   };
 
   return (
-    <AdminAuthContext.Provider value={{ user, loading, error, login, logout, isAdmin: !!user }}>
+    <AdminAuthContext.Provider value={{ user, role, canDelete: role === 'owner', loading, error, login, logout, isAdmin: !!user }}>
       {children}
     </AdminAuthContext.Provider>
   );
