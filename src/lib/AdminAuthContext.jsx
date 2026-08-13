@@ -1,26 +1,38 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { onAuthStateChanged, signInWithPopup, signOut, GoogleAuthProvider } from 'firebase/auth';
-import { auth } from './firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from './firebase';
 
 const AdminAuthContext = createContext(null);
 const googleProvider = new GoogleAuthProvider();
 
 const normalize = (email) => (email || '').trim().toLowerCase();
 
-// Toàn quyền: xem, xuất Excel, xoá
+// Chủ sở hữu cố định. Luôn toàn quyền và không phụ thuộc Firestore, để còn
+// đăng nhập được khi collection 'admins' rỗng hoặc mạng lỗi.
 const OWNER_EMAIL = normalize(import.meta.env.VITE_ADMIN_EMAIL);
-// Chỉ xem và xuất Excel, không xoá. Nhiều email cách nhau bởi dấu phẩy.
-const VIEWER_EMAILS = (import.meta.env.VITE_ADMIN_VIEWER_EMAILS || '')
-  .split(',')
-  .map(normalize)
-  .filter(Boolean);
 
-function getRole(email) {
+/**
+ * Vai trò của một email: 'owner' (xem + xoá), 'viewer' (chỉ xem), hoặc null.
+ * Admin phụ được khai trong collection 'admins', doc id là email viết thường,
+ * field 'role' nhận 'owner' hoặc 'viewer'. Thêm admin chỉ cần tạo document,
+ * không phải sửa biến env hay deploy lại.
+ */
+async function resolveRole(email) {
   const e = normalize(email);
   if (!e) return null;
   if (e === OWNER_EMAIL) return 'owner';
-  if (VIEWER_EMAILS.includes(e)) return 'viewer';
-  return null;
+
+  try {
+    const snap = await getDoc(doc(db, 'admins', e));
+    if (!snap.exists()) return null;
+    const role = snap.data().role;
+    return role === 'owner' || role === 'viewer' ? role : null;
+  } catch (err) {
+    // Không đọc được thì coi như không có quyền, không mở cửa khi lỗi
+    console.error('Không đọc được quyền admin:', err);
+    return null;
+  }
 }
 
 export function AdminAuthProvider({ children }) {
@@ -30,26 +42,38 @@ export function AdminAuthProvider({ children }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        const nextRole = getRole(firebaseUser.email);
-        if (nextRole) {
-          setUser(firebaseUser);
-          setRole(nextRole);
-          setError(null);
-        } else {
-          setError(`Email ${firebaseUser.email} không có quyền truy cập.`);
-          signOut(auth);
+    let cancelled = false;
+
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        if (!cancelled) {
           setUser(null);
           setRole(null);
+          setLoading(false);
         }
+        return;
+      }
+
+      const nextRole = await resolveRole(firebaseUser.email);
+      if (cancelled) return;
+
+      if (nextRole) {
+        setUser(firebaseUser);
+        setRole(nextRole);
+        setError(null);
       } else {
+        setError(`Email ${firebaseUser.email} không có quyền truy cập.`);
+        signOut(auth);
         setUser(null);
         setRole(null);
       }
       setLoading(false);
     });
-    return () => unsubscribe();
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
   }, []);
 
   const login = async () => {

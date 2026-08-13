@@ -4,32 +4,53 @@ rules_version = '2';
 // ai cũng có thể gọi thẳng Firebase SDK từ trình duyệt, nên quyền phải
 // được chặn ở đây thì mới có hiệu lực.
 //
-// Triển khai: Firebase Console > Firestore Database > Rules > dán file này > Publish
+// Thêm admin: Firestore Database > collection 'admins' > tạo document
+//   Document ID : email viết thường, ví dụ phamhoangson162@gmail.com
+//   Field       : role = "viewer" (chỉ xem) hoặc "owner" (xem + xoá)
+// Không cần sửa biến env, không cần build hay deploy lại.
+//
+// Triển khai file này: Firebase Console > Firestore Database > Rules > Publish
 // Hoặc: firebase deploy --only firestore:rules
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Email đã đăng nhập, viết thường. Trả '' nếu chưa đăng nhập hoặc
-    // email chưa xác minh -> mọi so sánh bên dưới đều thất bại (fail closed).
+    // Email đã đăng nhập, viết thường. Trả '' nếu chưa đăng nhập hoặc email
+    // chưa xác minh -> mọi so sánh bên dưới đều trượt (fail closed).
     function email() {
       return request.auth != null && request.auth.token.email_verified == true
         ? request.auth.token.email.lower()
         : '';
     }
 
-    // Toàn quyền: xem và xoá
-    function isOwner() {
+    // Chủ sở hữu cố định. Giữ ở đây để không bao giờ tự khoá mình ra ngoài,
+    // kể cả khi collection 'admins' rỗng hoặc bị xoá nhầm.
+    function isBootstrapOwner() {
       return email() == 'luonghaianh1208@gmail.com';
     }
 
-    // Chỉ xem, không xoá
-    function isViewer() {
-      return email() == 'phamhoangson162@gmail.com';
+    function adminPath() {
+      return /databases/$(database)/documents/admins/$(email());
+    }
+
+    // && dừng sớm nên khi chưa đăng nhập sẽ không dựng path rỗng
+    function isListedAdmin() {
+      return email() != '' && exists(adminPath());
     }
 
     function isAdmin() {
-      return isOwner() || isViewer();
+      return isBootstrapOwner() || isListedAdmin();
+    }
+
+    function isOwner() {
+      return isBootstrapOwner() || (isListedAdmin() && get(adminPath()).data.role == 'owner');
+    }
+
+    // Mỗi admin chỉ đọc được đúng document của mình, nên không ai lấy được
+    // danh sách admin. Sửa danh sách chỉ qua Firebase Console.
+    match /admins/{adminEmail} {
+      allow read:  if email() != '' && adminEmail == email();
+      allow write: if false;
     }
 
     // Học sinh chưa đăng nhập vẫn phải gửi được bài làm, nên create mở.
