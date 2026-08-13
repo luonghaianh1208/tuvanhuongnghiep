@@ -94,7 +94,7 @@ export function AdminAuthProvider({ children }) {
   };
 
   return (
-    <AdminAuthContext.Provider value={{ user, role, canDelete: role === 'owner', loading, error, login, logout, isAdmin: !!user }}>
+    <AdminAuthContext.Provider value={{ user, role, canDelete: role === 'owner', ownerEmail: OWNER_EMAIL, loading, error, login, logout, isAdmin: !!user }}>
       {children}
     </AdminAuthContext.Provider>
   );

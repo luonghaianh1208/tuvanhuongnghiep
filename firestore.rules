@@ -46,11 +46,21 @@ service cloud.firestore {
       return isBootstrapOwner() || (isListedAdmin() && get(adminPath()).data.role == 'owner');
     }
 
-    // Mỗi admin chỉ đọc được đúng document của mình, nên không ai lấy được
-    // danh sách admin. Sửa danh sách chỉ qua Firebase Console.
+    // Admin thường chỉ đọc được đúng document của mình nên không lấy được
+    // danh sách. Owner đọc cả danh sách để hiện trong tab Phân quyền.
     match /admins/{adminEmail} {
-      allow read:  if email() != '' && adminEmail == email();
-      allow write: if false;
+      allow get:  if email() != '' && (adminEmail == email() || isOwner());
+      allow list: if isOwner();
+
+      // Chỉ owner cấp quyền được, và chỉ với vai trò hợp lệ. Ràng buộc id là
+      // email viết thường để không tạo được hai bản ghi cho cùng một người.
+      allow create, update: if isOwner()
+                            && adminEmail == adminEmail.lower()
+                            && adminEmail.matches('^[^@]+@[^@]+[.][^@]+$')
+                            && request.resource.data.role in ['owner', 'viewer'];
+
+      // Chủ sở hữu cố định không nằm trong collection này, chặn thêm cho chắc
+      allow delete: if isOwner() && adminEmail != 'luonghaianh1208@gmail.com';
     }
 
     // Học sinh chưa đăng nhập vẫn phải gửi được bài làm, nên create mở.

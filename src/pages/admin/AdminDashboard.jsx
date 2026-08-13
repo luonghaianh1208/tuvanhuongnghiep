@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import DOMPurify from 'dompurify';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAdminAuth } from '../../lib/AdminAuthContext';
-import { fetchAllUsers, fetchAllTestResults, deleteUser, deleteTestResult, exportToExcel } from '../../lib/firestore-admin';
+import { fetchAllUsers, fetchAllTestResults, deleteUser, deleteTestResult, exportToExcel, fetchAdmins, saveAdmin, removeAdmin, normalizeEmail } from '../../lib/firestore-admin';
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid,
   PolarAngleAxis, PolarRadiusAxis, AreaChart, Area, XAxis, YAxis, CartesianGrid,
@@ -14,7 +14,9 @@ const TABS = [
   { id: 'users', label: 'Người dùng', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
   { id: 'results', label: 'Kết quả Test', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
   { id: 'analytics', label: 'Phân tích', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
-  { id: 'export', label: 'Xuất dữ liệu', icon: 'M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' }
+  { id: 'export', label: 'Xuất dữ liệu', icon: 'M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+  // Chỉ owner thấy tab này, xem bộ lọc ở phần render sidebar
+  { id: 'admins', label: 'Phân quyền', ownerOnly: true, icon: 'M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z' }
 ];
 
 const COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
@@ -143,8 +145,15 @@ function StatCard({ label, value, icon, color }) {
 }
 
 function AdminDashboard() {
-  const { user, logout, canDelete } = useAdminAuth();
+  const { user, logout, canDelete, role, ownerEmail } = useAdminAuth();
+  const isOwner = role === 'owner';
+  const visibleTabs = useMemo(() => TABS.filter(t => !t.ownerOnly || isOwner), [isOwner]);
   const [activeTab, setActiveTab] = useState('overview');
+  const [admins, setAdmins] = useState([]);
+  const [newAdminEmail, setNewAdminEmail] = useState('');
+  const [newAdminRole, setNewAdminRole] = useState('viewer');
+  const [adminBusy, setAdminBusy] = useState(false);
+  const [adminMsg, setAdminMsg] = useState(null);
   const [users, setUsers] = useState([]);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -155,6 +164,45 @@ function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => { loadData(); }, []);
+
+  // Nạp khi mở tab, tránh gọi Firestore với tài khoản không có quyền đọc
+  useEffect(() => {
+    if (activeTab !== 'admins' || !isOwner) return;
+    let cancelled = false;
+    fetchAdmins()
+      .then(list => { if (!cancelled) setAdmins(list); })
+      .catch(err => { if (!cancelled) setAdminMsg({ ok: false, text: 'Không tải được danh sách: ' + err.message }); });
+    return () => { cancelled = true; };
+  }, [activeTab, isOwner]);
+
+  async function handleSaveAdmin(e) {
+    e.preventDefault();
+    setAdminMsg(null);
+    setAdminBusy(true);
+    try {
+      const saved = await saveAdmin(newAdminEmail, newAdminRole);
+      setAdmins(await fetchAdmins());
+      setNewAdminEmail('');
+      setAdminMsg({ ok: true, text: `Đã cấp quyền ${newAdminRole === 'owner' ? 'toàn quyền' : 'chỉ xem'} cho ${saved}.` });
+    } catch (err) {
+      setAdminMsg({ ok: false, text: err.message });
+    }
+    setAdminBusy(false);
+  }
+
+  async function handleRemoveAdmin(email) {
+    if (!confirm(`Thu hồi quyền truy cập của ${email}?`)) return;
+    setAdminMsg(null);
+    setAdminBusy(true);
+    try {
+      await removeAdmin(email);
+      setAdmins(await fetchAdmins());
+      setAdminMsg({ ok: true, text: `Đã thu hồi quyền của ${email}.` });
+    } catch (err) {
+      setAdminMsg({ ok: false, text: err.message });
+    }
+    setAdminBusy(false);
+  }
 
   async function loadData() {
     setLoading(true);
@@ -415,7 +463,7 @@ function AdminDashboard() {
         </div>
 
         <nav className="flex-1 p-4 space-y-2">
-          {TABS.map(tab => (
+          {visibleTabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -920,6 +968,101 @@ function AdminDashboard() {
                       Tải xuống Excel (.xlsx)
                     </button>
                   </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ===== TAB: PHÂN QUYỀN (chỉ owner) ===== */}
+            {activeTab === 'admins' && isOwner && (
+              <motion.div key="admins" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-3xl space-y-6">
+
+                <form onSubmit={handleSaveAdmin} className="bg-white/5 rounded-2xl p-6 sm:p-8 border border-white/10">
+                  <h3 className="font-be-vietnam font-black text-white text-lg mb-1">Cấp quyền truy cập</h3>
+                  <p className="text-slate-400 font-be-vietnam text-sm mb-6">
+                    Nhập email Google của người cần cấp quyền. Cấp lại cùng một email sẽ thay vai trò cũ.
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <input
+                      type="email"
+                      required
+                      value={newAdminEmail}
+                      onChange={e => setNewAdminEmail(e.target.value)}
+                      placeholder="email@gmail.com"
+                      className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white font-be-vietnam text-sm placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50"
+                    />
+                    <select
+                      value={newAdminRole}
+                      onChange={e => setNewAdminRole(e.target.value)}
+                      className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white font-be-vietnam text-sm focus:outline-none focus:border-amber-500/50"
+                    >
+                      <option value="viewer" className="bg-slate-800">Chỉ xem</option>
+                      <option value="owner" className="bg-slate-800">Toàn quyền</option>
+                    </select>
+                    <button
+                      type="submit"
+                      disabled={adminBusy}
+                      className="px-6 py-3 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-slate-900 font-be-vietnam font-bold rounded-xl transition-all active:scale-95 whitespace-nowrap"
+                    >
+                      {adminBusy ? 'Đang lưu…' : 'Cấp quyền'}
+                    </button>
+                  </div>
+
+                  <p className="text-slate-500 font-be-vietnam text-xs mt-4">
+                    <span className="text-slate-400 font-bold">Chỉ xem</span> đọc và xuất dữ liệu, không xoá được.{' '}
+                    <span className="text-slate-400 font-bold">Toàn quyền</span> thêm quyền xoá và tự cấp quyền cho người khác.
+                  </p>
+
+                  {adminMsg && (
+                    <div className={`mt-4 rounded-xl px-4 py-3 text-sm font-be-vietnam border ${adminMsg.ok ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-red-500/10 border-red-500/30 text-red-400'}`}>
+                      {adminMsg.text}
+                    </div>
+                  )}
+                </form>
+
+                <div className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
+                  <div className="px-6 py-4 border-b border-white/10">
+                    <h3 className="font-be-vietnam font-black text-white text-lg">Đang có quyền</h3>
+                  </div>
+
+                  <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-white font-be-vietnam text-sm font-medium truncate">{ownerEmail}</p>
+                      <p className="text-slate-500 font-be-vietnam text-xs mt-0.5">Chủ sở hữu cố định, không thể thu hồi</p>
+                    </div>
+                    <span className="bg-amber-500/20 text-amber-400 px-2.5 py-1 rounded-lg text-xs font-bold font-be-vietnam whitespace-nowrap">Toàn quyền</span>
+                  </div>
+
+                  {admins.filter(a => a.email !== ownerEmail).map(a => (
+                    <div key={a.email} className="px-6 py-4 border-b border-white/5 last:border-0 flex items-center justify-between gap-3">
+                      <p className="text-white font-be-vietnam text-sm truncate min-w-0">
+                        {a.email}
+                        {a.email === normalizeEmail(user?.email) && <span className="text-slate-500 text-xs ml-2">(bạn)</span>}
+                      </p>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className={`px-2.5 py-1 rounded-lg text-xs font-bold font-be-vietnam ${a.role === 'owner' ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-500/20 text-slate-400'}`}>
+                          {a.role === 'owner' ? 'Toàn quyền' : 'Chỉ xem'}
+                        </span>
+                        {a.email === normalizeEmail(user?.email) ? (
+                          <span className="text-slate-600 font-be-vietnam text-sm">—</span>
+                        ) : (
+                          <button
+                            onClick={() => handleRemoveAdmin(a.email)}
+                            disabled={adminBusy}
+                            className="text-red-400/60 hover:text-red-400 disabled:opacity-40 font-be-vietnam text-sm transition-colors"
+                          >
+                            Thu hồi
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+
+                  {!admins.filter(a => a.email !== ownerEmail).length && (
+                    <p className="px-6 py-8 text-center text-slate-500 font-be-vietnam text-sm">
+                      Chưa cấp quyền cho ai khác.
+                    </p>
+                  )}
                 </div>
               </motion.div>
             )}
